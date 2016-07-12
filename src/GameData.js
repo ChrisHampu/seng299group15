@@ -11,3 +11,5 @@ class GameData {
     this.boardSize = inBoardSize || 9; //Added due to recommendation from Milestone 3
   }
 }
+
+module.exports = GameData;

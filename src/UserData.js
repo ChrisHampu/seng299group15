@@ -9,3 +9,5 @@ class UserData {
     this.activeGames = inActiveGames || [];
   }
 }
+
+module.exports = UserData;

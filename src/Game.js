@@ -13,3 +13,5 @@ class Game {
     this.gameData = new GameData(gameID, inPlayerOne, inPlayerTwo)
   }
 }
+
+module.exports = Game;
