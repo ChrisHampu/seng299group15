@@ -2,12 +2,12 @@
 //     INCLUDES
 //-----------------------------------------------------------------------------
 
-var Server = require('./src/Server');
-var express = require('express');
-var session = require('express-session');
+var Server = new require('./src/Server');
+var express = require('express')
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var ios = require('socket.io-express-session');
 
 var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
@@ -20,8 +20,10 @@ const googleSecret = process.env.GOOGLE_SECRET || "Ri-TWGe7QTl4qEBRmnvg0M6z";
 const googleCallback = process.env.GOOGLE_CALLBACK || `http://localhost:${port}/auth/callback`;
 const sessionSecret = process.env.SESSION_SECRET || "Seng299Group15";
 
+var session = require('express-session')({ secret: 'sessionSecret', resave: true, saveUninitialized: true });
+
 // Passport configuration
-app.use(session({ secret: 'sessionSecret' }));
+app.use(session);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -68,7 +70,7 @@ try {
 	  (accessToken, refreshToken, profile, done) => {
 
 	  	// The database will need to be called here to retrieve/save the users info
-	  	done(null, { id : profile.id, name: profile.displayName, profilePicture: profile.image.url });
+	  	done(null, { id : profile.id, name: profile.displayName, profilePicture: profile._json.image.url });
 	  }
 	));
 
@@ -84,6 +86,9 @@ app.get('/auth',
 app.get('/auth/callback', 
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
+
+  	req.session.user = req.user;
+
     res.redirect('/');
 	}
 );
@@ -92,11 +97,18 @@ app.get('/auth/callback',
 //     CONNECTIONS
 //-----------------------------------------------------------------------------
 
+io.use(ios(session));
+
 io.on('connection', socket => {
-  console.log('a user connected');
+
+	if (socket.handshake.session.user) {
+  	console.log(socket.handshake.session.user.name + " connected");
+	} else {
+		console.log("Unauthenticated user connected");
+	}
   
   socket.on('disconnect', () =>{
-    console.log('user disconnected');
+    console.log('User disconnected');
   });
 });
 
