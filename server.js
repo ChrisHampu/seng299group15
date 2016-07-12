@@ -3,28 +3,90 @@
 //-----------------------------------------------------------------------------
 
 var Server = require('./src/Server');
-
 var express = require('express');
-
+var session = require('express-session');
 var app = express();
-
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-var developmentMode = process.env.NODE_ENV !== 'production';
+var passport = require('passport');
+var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+
+// Configuration
+const port = process.env.PORT || 3000;
+const developmentMode = process.env.NODE_ENV !== 'production';
+const googleClientID = process.env.GOOGLE_CLIENT_ID || "1042858849145-hqg47cutf9jdgb7u1c373q433bhsui8f.apps.googleusercontent.com";
+const googleSecret = process.env.GOOGLE_SECRET || "Ri-TWGe7QTl4qEBRmnvg0M6z";
+const googleCallback = process.env.GOOGLE_CALLBACK || `http://localhost:${port}/auth/callback`;
+const sessionSecret = process.env.SESSION_SECRET || "Seng299Group15";
+
+// Passport configuration
+app.use(session({ secret: 'sessionSecret' }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Inject live reload before the static files if applicable
+
 if (developmentMode) {
+
 	app.use(require('connect-livereload')({
     port: 35729
   }));
 }
 
+app.get('/', (req, res, err) => {
+
+	if (!req.isAuthenticated()) {
+
+		res.sendFile('public/login.html', { root: __dirname });
+	} else {
+
+		res.sendFile('public/index.html', { root: __dirname });
+	}
+});
+
+// Public folder
+
 app.use(express.static('public'));
 
+// Authentication
 
-const port = process.env.PORT || 3000;
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
 
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
+
+try {
+	passport.use(new GoogleStrategy({
+	    clientID: googleClientID,
+	    clientSecret: googleSecret,
+	    callbackURL: googleCallback
+	  },
+	  (accessToken, refreshToken, profile, done) => {
+
+	  	// The database will need to be called here to retrieve/save the users info
+	  	done(null, { id : profile.id, name: profile.displayName, profilePicture: profile.image.url });
+	  }
+	));
+
+} catch(err) {
+	console.log(err);
+	console.log("Google OAuth is not configured properly, therefore authentication will not work.");
+}
+
+app.get('/auth',
+  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }
+));
+
+app.get('/auth/callback', 
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    res.redirect('/');
+	}
+);
 
 //-----------------------------------------------------------------------------
 //     CONNECTIONS
