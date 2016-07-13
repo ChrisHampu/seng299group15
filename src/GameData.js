@@ -9,7 +9,7 @@ class GameData {
     this.playerTwo = inPlayerTwo || "";
     this.history = inHistory || [];
     this.boardSize = inBoardSize || 9; //Added due to recommendation from Milestone 3
-	this.gameType = inGameType || 'Hotseat';
+    this.gameType = inGameType || 'Hotseat';
   }
 }
 

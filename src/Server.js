@@ -12,59 +12,76 @@ class Server {
     this.allGames = [];
   }
   
-  createGame (player1, player2, boardsize, gametype) { //Passing the player guids.
+  createGame (player1, boardsize, gametype) { //Passing the player guids.
     //this.NumberOfGames ++;       //increment number of games.
 
-	if (gametype == 'network'){
-		this.allGames.push(new Game(player1, boardsize, gametype)); //Store game reference in server.
-		//join game occurs later.
+    // Need to remove the socket before it gets serialized to the game data
+    const newGame = new Game(Object.assign({}, player1, { socket: undefined }), boardsize, gametype);
+
+  	if (gametype === 'Network') {
+  		this.allGames.push(game); //Store game reference in server.
+      //join game occurs later.
     }
-	else if (gametype == 'Hotseat'){
-		this.allGames.push(new game(player1, boardsize, gametype));
-		this.allGames[gameID].joinGame(player1);
-	}
-	else if (gametype == 'AI'){
-		this.allGames.push(new game(player1, boardsize, gametype));
-		this.allGames[GameID].joinGame(AI); //need to define a GUID for the AI. perhaps '00000001'?
-	}
-	else{
-		//error message
-	}
-    //update players?
+  	else if (gametype === 'Hotseat') {
+  		this.allGames.push(game);
+  		//this.allGames[gameID].joinGame(player1);
+  	}
+  	else if (gametype === 'AI') {
+  		this.allGames.push(game);
+  		//this.allGames[GameID].joinGame(AI); //need to define a GUID for the AI. perhaps '00000001'?
+  	}
+  	else {
+  		//error message
+  	}
+    //update players? 
+
+    // Send the player a 'gameCreated' message with the game data
+    player1.socket.emit('gameCreated', newGame.gameData);
     
-    updatePlayers(GameID); //?
+    this.updatePlayers(newGame.gameID); //?
   }
 
-  playMove (GameID, UserID, x, y) {
+  findGameById(gameID) {
+
+    return this.allGames.find(game => game.id === gameID);
+  }
+
+  playMove (gameID, userID, x, y) {
 	  
 	  //call playmove out of "Game" class functions
-	  this.allGames[GameID].playMove(UserID, x, y);
-	  updatePlayers(GameID);
+	  //this.allGames[GameID].playMove(UserID, x, y);
+	  this.updatePlayers(gameID);
   }
   
   
   //Need to send boardstate.
-  updatePlayers (GameID) {
+  updatePlayers (gameID) {
+
+    const game = this.findGameById(gameID);
     
+    if (!game) {
+      return;
+    }
+
     //IF HOTSEAT PLAY, SEND
 	
-	if ('Hotseat' == this.allGames[GameID].Game.GameData.gameType){
-		//send boardstate, and color of next move
-	}
+  	if ('Hotseat' == game.gameData.gameType){
+  		//send boardstate, and color of next move
+  	}
     else {
-		if ('AI' == this.allGames[GameID].Game.GameData.gameType){
-			//If AI moves next
-			//getMoveFromAI()
-			//always update human player, but if it is their turn, send the turn request flag.
-		}
-		else if ('network' == this.allGames[GameID].Game.GameData.gameType){
-			
-		}
-		else {
-			//error message			
-		}
-		
-	}
+  		if ('AI' == game.gameData.gameType){
+  			//If AI moves next
+  			//getMoveFromAI()
+  			//always update human player, but if it is their turn, send the turn request flag.
+  		}
+  		else if ('network' == game.gameData.gameType){
+  			
+  		}
+  		else {
+  			//error message			
+  		}
+  		
+  	}
   }
 }
 

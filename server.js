@@ -1,8 +1,9 @@
 //-----------------------------------------------------------------------------
 //     INCLUDES
 //-----------------------------------------------------------------------------
+"use strict";
 
-var Server = new require('./src/Server');
+var Server = new (require('./src/Server'));
 var express = require('express')
 var app = express();
 var http = require('http').Server(app);
@@ -35,6 +36,8 @@ if (developmentMode) {
     port: 35729
   }));
 }
+
+// Root endpoint
 
 app.get('/', (req, res, err) => {
 
@@ -102,13 +105,23 @@ io.use(ios(session));
 
 io.on('connection', socket => {
 
-	if (socket.handshake.session.user) {
-  	console.log(socket.handshake.session.user.name + " connected");
-	} else {
+	const user = Object.assign({}, socket.handshake.session.user, { socket });
+
+  if (socket.handshake.session.user) {
+
+  	console.log(user.name + " connected");
+
+  	// This function runs when the client sends a 'createGame' message
+  	socket.on('createGame', (gameType, boardSize) => {
+
+  		Server.createGame(user, gameType, boardSize);
+		});
+
+  } else {
 		console.log("Unauthenticated user connected");
 	}
-  
-  socket.on('disconnect', () =>{
+
+  socket.on('disconnect', () => {
     console.log('User disconnected');
   });
 });

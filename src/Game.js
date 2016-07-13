@@ -1,19 +1,19 @@
-"use strict"; 
-
+"use strict";
+var uuid = require('node-uuid');
 var GameData = require('./GameData');
 
 class Game {
 
   // Takes two player guids and generates game data
-  constructor(inPlayerOne, inPlayerTwo){
+  constructor(inPlayerOne, inGameType, inBoardSize){
 
     //How is GameID generated? Is it just the number of games + 1?
-    var gameID = 0;
+    var gameID = uuid.v4();
 
-    this.gameData = new GameData(gameID, inPlayerOne, inPlayerTwo, inBoardSize)
+    this.gameData = new GameData(gameID, inPlayerOne, undefined, inBoardSize)
   }
   
-    playMove (UserID, x, y) {
+  playMove (UserID, x, y) {
     
     //GameID.Board.History.append(color, x, y);
     
