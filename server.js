@@ -87,6 +87,7 @@ app.get('/auth/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
 
+  	// Save resulting user into session data
   	req.session.user = req.user;
 
     res.redirect('/');
@@ -166,3 +167,20 @@ req.end();
 				// cb (JSON.parse(str));
 			
 			// })
+
+/* Chris' AI implementation (requires node-fetch package)
+
+    var body = {
+    	size: size,
+    	board: board,
+    	last: lastMove
+    };
+
+    fetch('http://roberts.seng.uvic.ca:30000/ai/random', { method: "POST", 'Content-Type': 'application/json', body } )
+    .then(res => {
+    	return res.json();
+    }).then(json => {
+
+    	cb(json);
+    });
+*/
