@@ -123,6 +123,9 @@ console.log("Running in " + (developmentMode ? "development" : "production") + "
 http.listen(port, () => console.log('listening on *:' + port));
 
 
+
+
+
 //-------------------- AI communication
 /*
 req = http.request(options, callback);

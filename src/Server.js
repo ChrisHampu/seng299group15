@@ -11,44 +11,60 @@ class Server {
     
     this.allGames = [];
   }
-
-  createGame (player1, player2) { //Passing the player guids.
+  
+  createGame (player1, player2, boardsize, gametype) { //Passing the player guids.
     //this.NumberOfGames ++;       //increment number of games.
 
-    this.allGames.push(new Game(player1, player2)); //Store game reference in server.
-    
+	if (gametype == 'network'){
+		this.allGames.push(new Game(player1, boardsize, gametype)); //Store game reference in server.
+		//join game occurs later.
+    }
+	else if (gametype == 'Hotseat'){
+		this.allGames.push(new game(player1, boardsize, gametype));
+		this.allGames[gameID].joinGame(player1);
+	}
+	else if (gametype == 'AI'){
+		this.allGames.push(new game(player1, boardsize, gametype));
+		this.allGames[GameID].joinGame(AI); //need to define a GUID for the AI. perhaps '00000001'?
+	}
+	else{
+		//error message
+	}
     //update players?
     
-    UpdatePlayers(); //?
+    updatePlayers(GameID); //?
   }
-  
-  checkMove (GameID, UserID, x, y) {
-    //GAME LOGIC, THIS IS FOR GABRIEL;
-    //return true;
-    //return false;
-  }
-  
+
   playMove (GameID, UserID, x, y) {
-    
-    //GameID.Board.History.append(color, x, y);
-    
-    //calculate pieces taken and other changes to the board.
-    
-    //GameID.Board.CurrentState.makemove(color, x, y);
-    
+	  
+	  //call playmove out of "Game" class functions
+	  this.allGames[GameID].playMove(UserID, x, y);
+	  updatePlayers(GameID);
   }
   
+  
+  //Need to send boardstate.
   updatePlayers (GameID) {
-    var game = this.allGames[GameID];
     
     //IF HOTSEAT PLAY, SEND
-    
-    //ELSE UPDATE PERSON WHO JUST PLAYED
-    
-      //IF AI MAKES NEXT MOVE
-      
-      //ELSE NETWORKED PLAYER MAKES NEXT MOVE
-    
+	
+	if ('Hotseat' == this.allGames[GameID].Game.GameData.gameType){
+		//send boardstate, and color of next move
+	}
+    else {
+		if ('AI' == this.allGames[GameID].Game.GameData.gameType){
+			//If AI moves next
+			//getMoveFromAI()
+			//always update human player, but if it is their turn, send the turn request flag.
+		}
+		else if ('network' == this.allGames[GameID].Game.GameData.gameType){
+			
+		}
+		else {
+			//error message			
+		}
+		
+	}
   }
 }
 
