@@ -115,7 +115,12 @@ io.on('connection', socket => {
   	socket.on('createGame', (gameType, boardSize) => {
 
   		Server.createGame(user, gameType, boardSize);
-		});
+    });
+
+	socket.on('joinGame', id => {
+
+        Server.joinGame(user, id);
+    });
 
   } else {
 		console.log("Unauthenticated user connected");

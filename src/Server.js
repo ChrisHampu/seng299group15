@@ -38,7 +38,20 @@ class Server {
     // Send the player a 'gameCreated' message with the game data
     player1.socket.emit('gameCreated', newGame.gameData);
     
-    this.updatePlayers(newGame.gameID); //?
+    //this.updatePlayers(newGame.gameID); //?
+  }
+
+  joinGame(user, id) {
+
+    let game = this.findGameById(id);
+
+    if (null === game) {
+
+      user.socket.emit('failJoinGame');
+    } else {
+
+      game.addPlayer(user);
+    }
   }
 
   findGameById(gameID) {
@@ -50,12 +63,17 @@ class Server {
 	  
 	  //call playmove out of "Game" class functions
 	  //this.allGames[GameID].playMove(UserID, x, y);
-	  this.updatePlayers(gameID);
+
+
+	var game = this.findGameById(gameID);
+
+	game.playMove();
+	game.updatePlayers(gameID);
   }
   
   
   //Need to send boardstate.
-  updatePlayers (gameID) {
+/*  updatePlayers (gameID) {
 
     const game = this.findGameById(gameID);
     
@@ -82,7 +100,7 @@ class Server {
   		}
   		
   	}
-  }
+  } */
 }
 
 module.exports = Server;

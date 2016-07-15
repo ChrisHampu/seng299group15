@@ -23,6 +23,15 @@ class Game {
     
   }
     
+    addPlayer (user){
+
+        this.gameData.Player2 = user;
+        //called when person not the owner of game accesses the game.
+        this.gameData.Player1.socket.emit('playerJoined', this.gameData);
+
+    }
+
+    
   checkMove (GameID, UserID, x, y) {
     //GAME LOGIC, THIS IS FOR GABRIEL;
     //return true;

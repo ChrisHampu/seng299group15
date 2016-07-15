@@ -13,3 +13,13 @@ socket.on('gameCreated', game => {
 
   document.getElementById("gameid").innerHTML = game.gameID;
 });
+
+/*
+***("click", () => {
+
+	let id = "ased123";
+
+	socket.emit('joinGame', id);
+});
+
+*/
