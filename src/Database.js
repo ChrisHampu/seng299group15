@@ -46,7 +46,15 @@ class Database {
   storeAllGames() {
   }
   
-  loadUser() {
+  loadUser(userID,callback) {
+  	var result = this._db.users.find( { "userID": userID } )
+  	callback(result);
+  }
+  
+  saveUser(user,callback) {
+  	this._db.users.save(
+  		{"userID": user.userID, "fullName" : user.fullName, "numGamesPlayed" : user.numGamesPlayed}
+  	)
   }
   
   removeGame() {
