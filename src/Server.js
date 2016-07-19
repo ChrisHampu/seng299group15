@@ -14,6 +14,8 @@ class Server {
   
   createGame (player1, boardsize, gametype) { //Passing the player guids.
     //this.NumberOfGames ++;       //increment number of games.
+	
+	console.log("createGame called");
 
     // Need to remove the socket before it gets serialized to the game data
     const newGame = new Game(Object.assign({}, player1, { socket: undefined }), boardsize, gametype);
@@ -42,6 +44,8 @@ class Server {
   }
 
   joinGame(user, id) {
+  
+	console.log("joinGame called");
 
     let game = this.findGameById(id);
 
@@ -59,7 +63,15 @@ class Server {
     return this.allGames.find(game => game.id === gameID);
   }
 
+  passMove (gameID, userID) {
+  
+  console.log("called passMove");
+  
+  }
+  
   playMove (gameID, userID, x, y) {
+  
+	console.log("called playMove");
 	  
 	  //call playmove out of "Game" class functions
 	  //this.allGames[GameID].playMove(UserID, x, y);

@@ -3,8 +3,35 @@
       <link rel="stylesheet" href="/css/main.css">
     </head>
     <body>
-    <button id="creategame">Create Game</button>
+    <button id="creategame">Create Game</button><br>
+	<input type="radio" name="size" value="9x9"> 9x9<br>
+	<input type="radio" name="size2" value="13x13"> 13x13<br>
+	<input type="radio" name="size3" value="19x19"> 19x19<br>
     Game id: <span id="gameid"></span>
+	<br>
+	<br>
+	<br>
+	<button id="playmove">Play Move</button><br>
+	x:
+	<input type="text" x="x"><br>
+	y:
+	<input type="text" y="y"><br>
+	colour:
+	<input type="radio" name="black" value="black"> black<br>
+	<input type="radio" name="white" value="white"> white<br>
+	
+	<br>
+	<br>
+	<br>
+	<button id="passmove">Pass Move</button><br>
+	
+	
+	<br>
+	<br>
+	<br>
+	<button id="joingame">Join Game</button><br>
+	<input type="text" name="joinid" joinid="joinid"><br>
+	
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="js/client.js"></script>
     </body>
