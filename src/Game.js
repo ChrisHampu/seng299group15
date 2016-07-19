@@ -5,7 +5,7 @@ var GameData = require('./GameData');
 class Game {
 
   // Takes two player guids and generates game data
-  constructor(inPlayerOne, inGameType, inBoardSize){
+  constructor(inPlayerOne, inGameType, inBoardSize) {
 
     //How is GameID generated? Is it just the number of games + 1?
     var gameID = uuid.v4();

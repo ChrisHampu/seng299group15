@@ -7,6 +7,8 @@ var Server = new (require('./src/Server'));
 var express = require('express')
 var app = express();
 var http = require('http').Server(app);
+var database = new (require('./src/Database'));
+
 var io = require('socket.io')(http);
 var ios = require('socket.io-express-session');
 
@@ -72,8 +74,13 @@ try {
 	  },
 	  (accessToken, refreshToken, profile, done) => {
 
+		database.loadUser(profile.id, (doc) => {
+		
+			done(null, { numGamesPlayed: doc.numGamesPlayed, fullName: profile.displayName, profilePicture: profile._json.image.url });
+		});
+	  
 	  	// The database will need to be called here to retrieve/save the users info
-	  	done(null, { id : profile.id, name: profile.displayName, profilePicture: profile._json.image.url });
+	  	//done(null, { id : profile.id, l });
 	  }
 	));
 
@@ -152,7 +159,13 @@ console.log("Running in " + (developmentMode ? "development" : "production") + "
 http.listen(port, () => console.log('listening on *:' + port));
 
 
-
+//when server closes, save all games
+process.on('SIGINT', function() {
+	console.log("storing all games");
+	database.storeAllGames();
+	
+	process.exit();
+});
 
 
 //-------------------- AI communication

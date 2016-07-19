@@ -1,12 +1,50 @@
-var MongoClient = require("mongodb").MongoClient;
+
+const mongodb = require('mongodb');
+let mongoClient = mongodb.MongoClient;
 
 class Database {
 
   constructor () { 
 
     this.gameCache = [];
+    
+	this.collections = new Map();
+
+	mongoClient.connect("mongodb://localhost:27017", (err, db) => {
+	
+		this.database = db;
+	
+		if(err) {
+			console.log(err);
+			process.exit();
+		}
+		
+		this.getCollection(db, "users", col => {
+			this.collections.set("users", col);
+		});
+		
+		this.getCollection(db, "games", col => {
+			this.collections.set("games", col);
+		});
+	});
   }
   
+	getCollection(db, name, cb) {
+		
+		db.collection(name, (err, col) => {
+			
+			if (err) {
+				
+				db.createCollection(name).then((err, res) => {
+					
+					cb(db.collection(name));
+				});
+			} else {
+				cb(col);
+			}
+		});
+	}
+  /*
       function connect(callback) {
         
         var that = this; 
@@ -28,31 +66,69 @@ class Database {
             }
         );
     }
+	*/
+  
+	addToCache(game) {
+	
+		this.gameCache.push(game);
+	}
+	
+	removeFromCache(gameID) {
+	
+		let gameIndex = this.gameCache.find(el => el.gameID === gameID);
+		
+		if (gameIndex !== -1) {
+			
+			this.gameCache.splice(gameIndex, 1);
+		}
+	}
   
   getGamesFromPlayer(userID, callback) {
-	  var result_array = [];
-	  var result = this._db.collection('games').find({"userID": userID}).toArray(function(err, result_array){
-		callback (null, result_array);
-		}
-	  }
+	  
+	this.collections.get("games").find({"userID":userID}).limit(1).next((err, doc) => {
+	
+		console.log(err);
+		console.log(doc);
+		
+		callback(doc || { gameID ,});
+	});
+	  
   }
   
   loadAllGames(callback) {
-	  var result_array = [];
-	  var result = this._db.collection('games').find({})
-	  callback
+	  this.collections.get("games").find({}).limit(1).next((err, doc) => {
+	
+		console.log(err);
+		console.log(doc);
+		
+		let game = doc || { gameID };
+		this.gameCache.push(game);
+		
+		callback(game);
+	});
   }
   
   storeAllGames() {
+	for (var i=0; i< this.gameCache.length; i++) {
+		this.storeGame(this.gameCache[i]);
+	}
   }
   
   loadUser(userID,callback) {
-  	var result = this._db.users.find( { "userID": userID } )
-  	callback(result);
+  
+ 	this.collections.get("users").find({userID}).limit(1).next((err, doc) => {
+	
+		console.log(err);
+		console.log(doc);
+		
+		callback(doc || { userID, numGamesPlayed: 0,  });
+	});
+ 
   }
   
-  saveUser(user,callback) {
-  	this._db.users.save(
+  saveUser(user) {
+  
+  	this.collections.get("users").save(
   		{"userID": user.userID, "fullName" : user.fullName, "numGamesPlayed" : user.numGamesPlayed}
   	)
   }
@@ -60,7 +136,16 @@ class Database {
   removeGame() {
   }
   
-  storeGame() {
+  storeGame(game) {
+	this.collections.get("games").save(
+  		{"gameID": game.gameData.gameID , 
+		"playerOne" : game.gameData.playerOne, 
+		"playerTwo" : game.gameData.playerTwo,
+		"history" : game.gameData.history,
+		"boardSize" : game.gameData.boardSize,
+		"gameType" : game.gameData.gameType
+		}
+  	)
   }
 }
 
