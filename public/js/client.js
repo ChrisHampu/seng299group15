@@ -280,12 +280,15 @@ function renderPlayGame(game) {
 
   $("#game_board")[0].addEventListener('click', (ev) => {
 
-    let hitX = ev.offsetX - ((ev.offsetX * 0.98) / boardWidth) * wScale;
-    let hitY = ev.offsetY - ((ev.offsetY * 0.98) / boardHeight) * hScale;
+    let multi = game.boardSize === 9 ? 0.98 : (game.boardSize === 13 ? 1.25 : 1.75);
 
-    if (ev.target.nodeName === "svg") {
-      hitX += wScale / 2;
-      hitY += hScale / 2;
+    let hitX = ev.offsetX;
+    let hitY = ev.offsetY;
+
+    if (ev.target.nodeName !== "svg") {
+
+      hitX -= ((ev.offsetX * multi) / boardHeight) * wScale;
+      hitY -= ((ev.offsetY * multi) / boardHeight) * hScale;
     }
 
     const findClosest = (goal, list) => list.reduce(function (prev, curr) {
