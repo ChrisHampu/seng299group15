@@ -13,13 +13,39 @@ class Board {
     // 0 indicates an empty square,
     // 1 indicates a black piece,
     // 2 indicates a white piece.
-    this.currentState = [];
+    this.currentState = [][];
 
-    if (this.history.length) {
-
-      // If this class is passed in a valid history, the board state must be reconstructed here
+	//build the board array
+    for (var i = 0; i < this.history.length; i++) {
+		playMoveLocal(this.currentState, this.history[i])
     }
+	
+	
   }
+  
+  //needs to actually play moves and not CHEAT!!!
+  playMoveLocal(inBoardState, inMove) {
+	inBoardState[inMove.x][inMove.y] == inMove.colour;
+  }
+  
+  convertToInteger(inBoardState) {
+	state = [][];
+	for (var i = 0; i < inBoardState[].length; i++) {
+		for (var j = 0; j < inBoardState[].length; j++) {
+			if (inBoardState[i][j] == "Black") {
+				state[i][j] = 1;
+			}
+			if (inBoardState[i][j] == "White") {
+				state[i][j] = 2;
+			}
+			else {
+				state[i][j] = 0;
+			}
+		}
+	}
+	return state;
+  }
+  
 }
 
 module.exports = Board;

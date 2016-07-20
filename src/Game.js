@@ -1,6 +1,7 @@
 "use strict";
 var uuid = require('node-uuid');
 var GameData = require('./GameData');
+var Board = require('./Board');
 
 class Game {
 
@@ -118,13 +119,19 @@ class Game {
   // Check actual board x/y coordinates + other logic
   // Verify there isn't already a piece there, etc
   checkMove(user, x, y) {
-    //GAME LOGIC, THIS IS FOR GABRIEL;
-    //return true;
-    //return false;
+    //if too far off the board
+	if (x > this.GameData.boardSize || y > this.GameData.boardSize) {
+		return false;
+	}
+	
+	board = new Board(this.gameData.history);
+	
+	//if move is surrounded
+	//if (board.currentState[x+1][y] == 0) 
+	
 
     return true;
   }
-  
   
 }
 
