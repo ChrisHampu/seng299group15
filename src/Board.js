@@ -17,15 +17,30 @@ class Board {
 
 	//build the board array
     for (var i = 0; i < this.history.length; i++) {
-		playMoveLocal(this.currentState, this.history[i])
+		playMove(this.currentState, this.history[i].x, this.history[i].y, this.history[i].colour)
     }
 	
 	
   }
   
-  //needs to actually play moves and not CHEAT!!!
-  playMoveLocal(inBoardState, inMove) {
-	inBoardState[inMove.x][inMove.y] == inMove.colour;
+  //now plays moves
+  playMove(inBoardState, x, y, colour) {
+	inBoardState[x][y] == colour;
+	
+	var offColour = "";
+	if (colour == "White")
+		offColour = "Black";
+	if (colour == "Black")
+		offColour = "White";
+	
+	if (!Game.checkLiberties(inBoardState, x, y-1, offColour))
+		inBoardState[x][y-1] = 0;
+	if (!Game.checkLiberties(inBoardState, x+1, y, offColour))
+		inBoardState[x+1][y] = 0;
+	if (!Game.checkLiberties(inBoardState, x-1, y, offColour))
+		inBoardState[x-1][y] = 0;
+	if (!Game.checkLiberties(inBoardState, x, y+1, offColour))
+		inBoardState[x][y+1] = 0;
   }
   
   convertToInteger(inBoardState) {

@@ -93,13 +93,10 @@ class Game {
     if (this.playerTwo.id !== "AI" && this.playerOne.id !== this.playerTwo.id) {
       this.playerTwo.socket.emit('showMove', user.colour, x, y);
     } else if (this.playerTwo.id === "AI") {
-
-      // If player made a valid move, now the AI needs to perform a move
+		var tmpBoard = new Board(this.gameData.history);
+		// If player made a valid move, now the AI needs to perform a move
     }
     
-    //calculate pieces taken and other changes to the board.
-    
-    //GameID.Board.CurrentState.makemove(color, x, y);
   }
     
   addPlayer(inPlayerTwo) {
@@ -118,19 +115,86 @@ class Game {
 
   // Check actual board x/y coordinates + other logic
   // Verify there isn't already a piece there, etc
+  //returns true for valid move, false otherwise
   checkMove(user, x, y) {
     //if too far off the board
-	if (x > this.GameData.boardSize || y > this.GameData.boardSize) {
+	if (x > this.gameData.boardSize || y > this.gameData.boardSize) {
 		return false;
 	}
 	
 	board = new Board(this.gameData.history);
 	
-	//if move is surrounded
-	//if (board.currentState[x+1][y] == 0) 
+	//if spot is taken
+	if (board[x][y] != 0) {
+		return false;
+	}
 	
-
+	Board.playMoveLocal(board, x, y, user.colour);
+	
+	//if move is surrounded
+	if (!checkLiberties(board,x,y,user.colour)) {
+		return false;
+	}
+	
+	oldBoard = new Board(this.gameData.history.pop().pop())
+	
+	//if oldBoard == newBoard, return false
+	//checking that move doesnt recreate past board state
+	for (var i =0; i < board[].length; i++) {
+		for (var j =0; j < board[].length; j++) {
+			if (oldBoard[i][j] != board[i][j]) {
+				return false;
+			}
+		}
+	}
+	
     return true;
+  }
+  
+  
+  //returns true for liberty, false otherwise
+  checkLiberties(inBoardState, x, y , inColour) {
+	//check top
+	if (y-1 >= 0) {
+		if (inBoardState[x][y-1] == 0) {
+			return true;
+		} else if (inBoardState[x][y-1] == inColour){
+			if (checkLiberties(inBoardState, x, y-1, inColour))
+				return true;
+		}
+	}
+	
+	//check right
+	if (x+1 < inBoardState[].length) {
+		if (inBoardState[x+1][y] == 0) {
+			return true;
+		} else if (inBoardState[x+1][y] == inColour){
+			if (checkLiberties(inBoardState, x+1, y, inColour))
+				return true;
+		}
+	}
+	
+	//check left
+	if (x-1 >= 0) {
+		if (inBoardState[x-1][y] == 0) {
+			return true;
+		} else if (inBoardState[x-1][y] == inColour){
+			if (checkLiberties(inBoardState, x-1, y, inColour))
+				return true;
+		}
+	}
+	
+	//check bottom
+	if (y+1 < inBoardState.length) {
+		if (inBoardState[x][y+1] == 0) {
+			return true;
+		} else if (inBoardState[x][y+1] == inColour){
+			if (checkLiberties(inBoardState, x, y+1, inColour))
+				return true;
+		}
+	}
+	
+	return false;
   }
   
 }
