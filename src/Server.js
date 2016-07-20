@@ -12,37 +12,16 @@ class Server {
     this.allGames = [];
   }
   
-  createGame (player1, boardsize, gametype, colour) { //Passing the player guids.
-    //this.NumberOfGames ++;       //increment number of games.
+  createGame (player, boardsize, gametype, colour) { //Passing the player guids.
 	
 	 console.log("createGame called");
 
-    player1.colour = colour;
+    const newGame = new Game(player, boardsize, gametype, colour);
 
-    // Need to remove the socket before it gets serialized to the game data
-    const newGame = new Game(player1, boardsize, gametype);
-
-  	if (gametype === 'Network') {
-  		this.allGames.push(game); //Store game reference in server.
-      //join game occurs later.
-    }
-  	else if (gametype === 'Hotseat') {
-  		this.allGames.push(game);
-  		//this.allGames[gameID].joinGame(player1);
-  	}
-  	else if (gametype === 'AI') {
-  		this.allGames.push(game);
-  		//this.allGames[GameID].joinGame(AI); //need to define a GUID for the AI. perhaps '00000001'?
-  	}
-  	else {
-  		//error message
-  	}
-    //update players? 
+    this.allGames.push(newGame);
 
     // Send the player a 'gameCreated' message with the game data
-    player1.socket.emit('gameCreated', newGame.gameData);
-    
-    //this.updatePlayers(newGame.gameID); //?
+    player.socket.emit('gameCreated', newGame.gameData);
   }
 
   // user becomes player 2
@@ -56,33 +35,39 @@ class Server {
 
     } else {
 
+      user.activeGame = gameID;
       game.addPlayer(user);
     }
   }
 
   findGameById(gameID) {
 
-    return this.allGames.find(game => game.id === gameID);
+    console.log(this.allGames);
+    return this.allGames.find(game => game.gameData.gameID === gameID || game.gameData.gameID.startsWith(gameID));
   }
 
-  passMove (gameID, userID) {
+  passMove (user) {
   
-  console.log("called passMove");
+    console.log("called passMove");
   
   }
   
-  playMove (gameID, userID, x, y) {
+  playMove (user, x, y) {
   
-	console.log("called playMove");
-	  
-	  //call playmove out of "Game" class functions
-	  //this.allGames[GameID].playMove(UserID, x, y);
+  	console.log("called playMove");
+  	  
+  	  //call playmove out of "Game" class functions
+  	  //this.allGames[GameID].playMove(UserID, x, y);
 
 
-	var game = this.findGameById(gameID);
+  	var game = this.findGameById(user.activeGame);
 
-	game.playMove();
-	game.updatePlayers(gameID);
+    if (!game) {
+      return;
+    }
+
+  	game.playMove(user, x, y);
+  	//game.updatePlayers(gameID);
   }
   
   

@@ -1,6 +1,7 @@
 
 
 var socket = io();
+let activeGame = undefined;
 
 // Utility functions to make up for not having jQuery
 const $ = selector => document.querySelectorAll(selector);
@@ -278,8 +279,21 @@ function renderPlayGame(game) {
       startX = wScale / 2;
   }
 
+  activeGame = {
+    game,
+    boardWidth,
+    boardHeight,
+    wScale,
+    hScale,
+    startX: wScale / 2,
+    startY: hScale / 2,
+    circlePadding,
+    gameBoard
+  };
+
   $("#game_board")[0].addEventListener('click', (ev) => {
 
+    // Magic numbers, nothing to see here
     let multi = game.boardSize === 9 ? 0.98 : (game.boardSize === 13 ? 1.25 : 1.75);
 
     let hitX = ev.offsetX;
@@ -314,9 +328,14 @@ function renderPlayGame(game) {
     hitX = findClosest(hitX, xHits);
     hitY = findClosest(hitY, yHits);
 
-    let circ = makeCircle(hitX, hitY, Math.min(wScale / 2 - circlePadding, hScale / 2 - circlePadding), "url('#blackGrad')");
+    let x = Math.floor(hitX / wScale);
+    let y = Math.floor(hitY / hScale);
 
-    gameBoard.appendChild(circ);
+    socket.emit('playMove', x, y);
+ 
+    //let circ = makeCircle(hitX, hitY, Math.min(wScale / 1.65 - circlePadding, hScale / 1.65 - circlePadding), "url('#blackGrad')");
+
+    //gameBoard.appendChild(circ);
   });
 }
 
@@ -364,11 +383,27 @@ socket.on('gameCreated', game => {
 });
 
 socket.on('failJoinGame', msg => {
-  console.log("fail");
+
   document.getElementById("join_game_fail").innerHTML = msg;
 });
 
 socket.on('connected', user => {
   console.log(user);
   renderUserInfo(user);
+});
+
+socket.on('showMove', (colour, x, y) => {
+
+  console.log(activeGame);
+
+  let hitX = activeGame.startX + x * activeGame.wScale;
+  let hitY = activeGame.startY + y * activeGame.hScale;
+
+  console.log(x, y, hitX, hitY);
+
+  let circ = makeCircle(hitX, hitY, 
+    Math.min(activeGame.wScale / 1.65 - activeGame.circlePadding, activeGame.hScale / 1.65 - activeGame.circlePadding),
+    colour === "Black" ? "url('#blackGrad')" : "url('#whiteGrad')");
+
+  activeGame.gameBoard.appendChild(circ);
 });
