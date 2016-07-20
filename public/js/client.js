@@ -35,6 +35,37 @@ const append = (selector, nodes, class_, id, type) => {
     selector[0].appendChild(el);
 };
 
+const makeRectangle = (x, y, w, h, c) => {
+  var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect"); 
+
+  rect.setAttribute("x", x);
+  rect.setAttribute("y", y);
+  rect.setAttribute("width", w);
+  rect.setAttribute("height", h);
+
+  rect.style.stroke      = c || "#000000";
+  rect.style.strokeWidth = 2;
+  rect.style.fill = "#ffffff";
+
+  return rect; 
+}
+
+const makeCircle = (x, y, r, c) => {
+
+   var circ = document.createElementNS("http://www.w3.org/2000/svg", "circle"); 
+
+    circ.setAttribute("cx", x);
+    circ.setAttribute("cy", y);
+    circ.setAttribute("r", r);
+
+    circ.setAttribute("stroke", "#FF00FF");
+
+    circ.setAttribute("stroke-width", 1);
+    circ.setAttribute("fill", c || "#ffffff");
+
+   return circ;
+}
+
 function renderToBody(node) {
 
   let anchor = $("#body_anchor")[0];
@@ -149,6 +180,79 @@ function renderUserInfo(user) {
   anchor.appendChild(node);
 }
 
+function renderPlayGame(game) {
+  const content = loadContent("#gamePlayTemplate");
+
+  renderToBody(content);
+
+  const headerContent = loadContent("#playGamePageMenu");
+
+  renderToHeaderRight(headerContent);
+
+  on("#leaveGameButton", "click", () => {
+
+    // User is leaving game
+    // Emit appropriate events to server
+
+    renderCreateGame();
+  });
+
+  const gameContainer = $("#game_container")[0];
+  const gameBoard = $("#game_board")[0];
+
+  const containerWidth = gameContainer.clientWidth;
+  const containerHeight = gameContainer.clientHeight;
+
+  const smallest = Math.min(containerWidth, containerHeight);
+
+  const boardWidth = smallest;
+  const boardHeight = smallest;
+
+  gameBoard.style.height = boardHeight;
+  gameBoard.style.width = boardWidth;
+
+  const wScale = boardWidth / (game.boardSize || 1);
+  const hScale = boardHeight / (game.boardSize || 1);
+  const circlePadding = 10;
+
+  let startX = wScale / 2;
+  let startY = hScale / 2;
+
+  for (var i = 0; i < game.boardSize; i++) {
+    //console.log(i);
+
+      for (var j = 0; j < game.boardSize; j++) {
+        //console.log(j);
+
+          // Avoid drawing extra lines
+          if (startX <= boardWidth - wScale && startY <= boardHeight - hScale) {
+
+            let rekt = makeRectangle(startX, startY, wScale, hScale, "#ff00ff");
+
+            gameBoard.appendChild(rekt);
+          }
+
+          // Add piece to board if it exists
+          /*
+          if (column) {
+
+              const colour = column === 2 ? "#000000" : "#FFFFFF";
+
+              let circ = $(makeCircle(startX, startY, Math.min(wScale / 2 - circlePadding, hScale / 2 - circlePadding), colour));
+
+              svg.append(circ);
+          }
+          */
+
+          startX += wScale;
+      }
+
+      startY += hScale;
+      startX = wScale / 2;
+  }
+}
+
+ // Application entry point
 document.addEventListener('DOMContentLoaded', () => {
 
   renderCreateGame();
@@ -184,6 +288,9 @@ document.getElementById("joingame").addEventListener("click", () => {
 */
 socket.on('gameCreated', game => {
 
+  console.log(game);
+
+  renderPlayGame(game);
   //document.getElementById("gameid").innerHTML = game.gameID;
   //document.getElementById("gameid").innerHTML = game.gameData.boardSize;
 });

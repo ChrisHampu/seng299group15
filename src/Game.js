@@ -13,7 +13,7 @@ class Game {
     this.playerOne = inPlayerOne; // This object has access to the socket
     this.playerTwo = undefined;
 
-    this.gameData = new GameData(gameID, Object.assign({}, inPlayerOne, { socket: undefined }), undefined, inBoardSize)
+    this.gameData = new GameData(gameID, Object.assign({}, inPlayerOne, { socket: undefined }), undefined, [], parseInt(inBoardSize), inGameType);
   }
   
   playMove (UserID, x, y) {

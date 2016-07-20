@@ -41,9 +41,13 @@
         <li><button class="success button" id="renderJoinGameButton">Join Existing Game</button></li>
     </template>
 
+    <template id="playGamePageMenu">
+        <li><button class="alert button" id="leaveGameButton">Leave Game</button></li>
+    </template>
+
     <template id="joinGameTemplate">
         <div class="large-3 columns"><!-- ... --></div>
-            <h2>Please Enter Game ID to Join Previous Games</h2>
+            <h2>Enter ID of game to join</h2>
             <input type="search" placeholder="GameID">
             <button class="large button" id="joinGame">Join Game</button>
         <div class="large-3 columns"><!-- ... --></div>
@@ -110,10 +114,8 @@
 
     <template id="gamePlayTemplate">
         <h1 align="center">My Go Board</h1>
-        <div style='width:100%;'>
-            <div id='canvas'>
-
-            </div>
+        <div id="game_container">
+            <svg id="game_board" />
         </div>
         <div class="row" id="wrapper">
             <div class="large-3 columns"><!-- ... --></div>            
