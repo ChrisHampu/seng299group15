@@ -24,7 +24,8 @@
     "passport": "^0.3.2",
     "passport-google-oauth": "^1.0.0",
     "node-uuid": "^1.4.7",
-    "mongodb": ""
+    "mongodb": "",
+    "simple-fetch": "1.2.1"
   },
   "devDependencies": {
     "express-livereload": "^0.0.24",

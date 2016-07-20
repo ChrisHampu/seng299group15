@@ -13,11 +13,11 @@ class Board {
     // 0 indicates an empty square,
     // 1 indicates a black piece,
     // 2 indicates a white piece.
-    this.currentState = [][];
+    this.currentState = [];
 
 	//build the board array
     for (var i = 0; i < this.history.length; i++) {
-		playMove(this.currentState, this.history[i].x, this.history[i].y, this.history[i].colour)
+		//this.playMove(this.currentState, this.history[i].x, this.history[i].y, this.history[i].colour)
     }
 	
 	
@@ -44,9 +44,9 @@ class Board {
   }
   
   convertToInteger(inBoardState) {
-	state = [][];
-	for (var i = 0; i < inBoardState[].length; i++) {
-		for (var j = 0; j < inBoardState[].length; j++) {
+	state = [];
+	for (var i = 0; i < inBoardState.length; i++) {
+		for (var j = 0; j < inBoardState[i].length; j++) {
 			if (inBoardState[i][j] == "Black") {
 				state[i][j] = 1;
 			}

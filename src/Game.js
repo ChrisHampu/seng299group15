@@ -1,4 +1,6 @@
 "use strict";
+
+const fetch = require('simple-fetch').postJson;
 var uuid = require('node-uuid');
 var GameData = require('./GameData');
 var Board = require('./Board');
@@ -61,9 +63,14 @@ class Game {
     // Check correct coloured player is performing the move
     const nextColour = this.getNextMovingPlayerColour();
 
-    if (user.id === this.playerOne.id && this.playerOne.colour === nextColour) {
-      canPlayMove = true;
-    } else if(user.id === this.playerTwo.id && this.playerTwo.colour === nextColour) {
+    // Hot seat games don't need to verify the current player colour; its the same player
+    if (!this.gameData.gameType === "Hotseat") {
+      if (user.id === this.playerOne.id && this.playerOne.colour === nextColour) {
+        canPlayMove = true;
+      } else if(user.id === this.playerTwo.id && this.playerTwo.colour === nextColour) {
+        canPlayMove = true;
+      }
+    } else {
       canPlayMove = true;
     }
 
@@ -86,17 +93,63 @@ class Game {
       return;
     }
 
-    this.gameData.history.push({colour: user.colour, x, y});
+    const newColour = this.gameData.gameType !== "Hotseat" ? user.colour : this.getNextMovingPlayerColour();
 
-    this.playerOne.socket.emit('showMove', user.colour, x, y);
+    this.gameData.history.push({colour: newColour, x, y});
 
-    if (this.playerTwo.id !== "AI" && this.playerOne.id !== this.playerTwo.id) {
+    // Hot seat game play needs to alternate colours
+    this.playerOne.socket.emit('showMove', newColour, x, y);
+
+    if (this.gameData.gameType !== "Hotseat" && this.playerTwo.id !== "AI" && this.playerOne.id !== this.playerTwo.id) {
       this.playerTwo.socket.emit('showMove', user.colour, x, y);
     } else if (this.playerTwo.id === "AI") {
 		var tmpBoard = new Board(this.gameData.history);
-		// If player made a valid move, now the AI needs to perform a move
+
+      // If player made a valid move, now the AI needs to perform a move
+      this.getNextMoveFromAI(move => {
+        
+        this.gameData.history.push({colour: move.c === 1 ? "White" : "Black", x: move.x, y: move.y});
+        this.playerOne.socket.emit('showMove', move.c === 1 ? "White" : "Black", move.x, move.y);
+      });
     }
     
+    //calculate pieces taken and other changes to the board.
+    
+  }
+
+  getNextMoveFromAI(callback) {
+
+    var dummy = [];
+
+    for (var i = 0; i < this.gameData.boardSize; i++) {
+
+      var dummy2 = [];
+
+      for (var j = 0; j < this.gameData.boardSize; j++) {
+        dummy2.push(0);
+      }
+
+      dummy.push(dummy2);
+    }
+
+    dummy[0][0] = 2;
+
+    var body = {
+      size: this.gameData.boardSize,
+      board: dummy,
+      last: {
+        x: 0,
+        y: 0,
+        c: 2,
+        pass: false
+      }
+    };
+
+    fetch('http://roberts.seng.uvic.ca:30000/ai/random', body)
+    .then(json => {
+
+      callback(json);
+    });
   }
     
   addPlayer(inPlayerTwo) {
@@ -118,35 +171,37 @@ class Game {
   //returns true for valid move, false otherwise
   checkMove(user, x, y) {
     //if too far off the board
-	if (x > this.gameData.boardSize || y > this.gameData.boardSize) {
-		return false;
-	}
-	
-	board = new Board(this.gameData.history);
-	
-	//if spot is taken
-	if (board[x][y] != 0) {
-		return false;
-	}
-	
-	Board.playMoveLocal(board, x, y, user.colour);
-	
-	//if move is surrounded
-	if (!checkLiberties(board,x,y,user.colour)) {
-		return false;
-	}
-	
-	oldBoard = new Board(this.gameData.history.pop().pop())
-	
-	//if oldBoard == newBoard, return false
-	//checking that move doesnt recreate past board state
-	for (var i =0; i < board[].length; i++) {
-		for (var j =0; j < board[].length; j++) {
-			if (oldBoard[i][j] != board[i][j]) {
-				return false;
-			}
-		}
-	}
+    /*
+  	if (x > this.gameData.boardSize || y > this.gameData.boardSize) {
+  		return false;
+  	}
+  	
+    let board = new Board(this.gameData.history);
+  	
+  	//if spot is taken
+  	if (board.currentState[x][y] != 0) {
+  		return false;
+  	}
+  	
+  	Board.playMoveLocal(board, x, y, user.colour);
+  	
+  	//if move is surrounded
+  	if (!checkLiberties(board,x,y,user.colour)) {
+  		return false;
+  	}
+  	
+  	oldBoard = new Board(this.gameData.history.pop().pop())
+  	
+  	//if oldBoard == newBoard, return false
+  	//checking that move doesnt recreate past board state
+  	for (var i =0; i < board.length; i++) {
+  		for (var j =0; j < board[i].length; j++) {
+  			if (oldBoard[i][j] != board[i][j]) {
+  				return false;
+  			}
+  		}
+  	}
+    */
 	
     return true;
   }
@@ -165,7 +220,7 @@ class Game {
 	}
 	
 	//check right
-	if (x+1 < inBoardState[].length) {
+	if (x+1 < inBoardState.length) {
 		if (inBoardState[x+1][y] == 0) {
 			return true;
 		} else if (inBoardState[x+1][y] == inColour){

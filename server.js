@@ -229,17 +229,5 @@ req.end();
 
 /* Chris' AI implementation (requires node-fetch package)
 
-    var body = {
-    	size: size,
-    	board: board,
-    	last: lastMove
-    };
 
-    fetch('http://roberts.seng.uvic.ca:30000/ai/random', { method: "POST", 'Content-Type': 'application/json', body } )
-    .then(res => {
-    	return res.json();
-    }).then(json => {
-
-    	cb(json);
-    });
 */

@@ -42,7 +42,6 @@ class Server {
 
   findGameById(gameID) {
 
-    console.log(this.allGames);
     return this.allGames.find(game => game.gameData.gameID === gameID || game.gameData.gameID.startsWith(gameID));
   }
 
