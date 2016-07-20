@@ -15,7 +15,9 @@ class Server {
   createGame (player1, boardsize, gametype, colour) { //Passing the player guids.
     //this.NumberOfGames ++;       //increment number of games.
 	
-	console.log("createGame called");
+	 console.log("createGame called");
+
+    player1.colour = colour;
 
     // Need to remove the socket before it gets serialized to the game data
     const newGame = new Game(player1, boardsize, gametype);
@@ -50,7 +52,7 @@ class Server {
 
     if (!game) {
 
-      user.socket.emit('failJoinGame');
+      user.socket.emit('failJoinGame', "Unable to find a game with that ID");
 
     } else {
 

@@ -43,9 +43,9 @@ const makeRectangle = (x, y, w, h, c) => {
   rect.setAttribute("width", w);
   rect.setAttribute("height", h);
 
-  rect.style.stroke      = c || "#000000";
+  rect.style.stroke      = "#000000";
   rect.style.strokeWidth = 2;
-  rect.style.fill = "#ffffff";
+  rect.style.fill = "#dcb35c";
 
   return rect; 
 }
@@ -58,9 +58,6 @@ const makeCircle = (x, y, r, c) => {
     circ.setAttribute("cy", y);
     circ.setAttribute("r", r);
 
-    circ.setAttribute("stroke", "#FF00FF");
-
-    circ.setAttribute("stroke-width", 1);
     circ.setAttribute("fill", c || "#ffffff");
 
    return circ;
@@ -156,9 +153,10 @@ function renderJoinGame() {
 
     console.log("joingame called");
 
-    var GameID = 123;
-    var UserID = 1;
-    socket.emit('joinGame', GameID, UserID);
+    const id = document.getElementById("game_id_input").value;
+    //var GameID = 123;
+    //var UserID = 1;
+    socket.emit('joinGame', id);
   });
 }
 
@@ -182,6 +180,35 @@ function renderUserInfo(user) {
 
 function renderPlayGame(game) {
   const content = loadContent("#gamePlayTemplate");
+
+  let title = "";
+
+  if (game.gameType === "Network") {
+
+    if (!game.playerTwo) {
+      title = "Waiting for Opponent";
+       content.getElementById("game_id").innerHTML = `Game ID: ${game.gameID.slice(0, 8)}`;
+    } else {
+      title = game.playerTwo.fullName;
+    }
+
+  } else if(game.gameType === "AI") {
+
+    title = "Playing vs AI";
+
+    if (game.playerOne.colour === "Black") {
+      content.getElementById("game_turn").innerHTML = "Your turn";
+    } else {
+      content.getElementById("game_turn").innerHTML = "AI's turn";
+    }
+  } else if(game.gameType === "Hotseat") {
+
+    title = "Hotseat Go";
+
+    content.getElementById("game_turn").innerHTML = "Black piece's turn";
+  }
+
+  content.getElementById("game_title").innerHTML = title;
 
   renderToBody(content);
 
@@ -227,7 +254,7 @@ function renderPlayGame(game) {
           // Avoid drawing extra lines
           if (startX <= boardWidth - wScale && startY <= boardHeight - hScale) {
 
-            let rekt = makeRectangle(startX, startY, wScale, hScale, "#ff00ff");
+            let rekt = makeRectangle(startX, startY, wScale, hScale);
 
             gameBoard.appendChild(rekt);
           }
@@ -250,6 +277,44 @@ function renderPlayGame(game) {
       startY += hScale;
       startX = wScale / 2;
   }
+
+  $("#game_board")[0].addEventListener('click', (ev) => {
+
+    let hitX = ev.offsetX - ((ev.offsetX * 0.98) / boardWidth) * wScale;
+    let hitY = ev.offsetY - ((ev.offsetY * 0.98) / boardHeight) * hScale;
+
+    if (ev.target.nodeName === "svg") {
+      hitX += wScale / 2;
+      hitY += hScale / 2;
+    }
+
+    const findClosest = (goal, list) => list.reduce(function (prev, curr) {
+      return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+    });
+
+    let xHits = [];
+    let startX = wScale / 2;
+
+    for (var i = 0; i <= game.boardSize; i++) {
+      xHits.push(startX);
+      startX += wScale;
+    }
+
+    let yHits = [];
+    let startY = hScale / 2;
+
+    for (var i = 0; i <= game.boardSize; i++) {
+      yHits.push(startY);
+      startY += hScale;
+    }
+
+    hitX = findClosest(hitX, xHits);
+    hitY = findClosest(hitY, yHits);
+
+    let circ = makeCircle(hitX, hitY, Math.min(wScale / 2 - circlePadding, hScale / 2 - circlePadding), "url('#blackGrad')");
+
+    gameBoard.appendChild(circ);
+  });
 }
 
  // Application entry point
@@ -295,7 +360,12 @@ socket.on('gameCreated', game => {
   //document.getElementById("gameid").innerHTML = game.gameData.boardSize;
 });
 
+socket.on('failJoinGame', msg => {
+  console.log("fail");
+  document.getElementById("join_game_fail").innerHTML = msg;
+});
+
 socket.on('connected', user => {
- 
+  console.log(user);
   renderUserInfo(user);
 });

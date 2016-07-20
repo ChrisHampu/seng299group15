@@ -75,10 +75,10 @@ try {
 	  },
 	  (accessToken, refreshToken, profile, done) => {
 
-		database.loadUser(profile.id, (doc) => {
-		
-			done(null, { numGamesPlayed: doc.numGamesPlayed, fullName: profile.displayName, profilePicture: profile._json.image.url });
-		});
+  		database.loadUser(profile.id, (doc) => {
+  		
+  			done(null, { id: profile.id, numGamesPlayed: doc.numGamesPlayed, fullName: profile.displayName, profilePicture: profile._json.image.url });
+  		});
 	  
 	  	// The database will need to be called here to retrieve/save the users info
 	  	//done(null, { id : profile.id, l });
@@ -143,6 +143,7 @@ io.on('connection', socket => {
 
   	socket.on('joinGame', id => {
 
+      console.log(id);
       Server.joinGame(user, id);
     });
   	
