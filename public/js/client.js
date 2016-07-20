@@ -2,6 +2,7 @@
 
 var socket = io();
 let activeGame = undefined;
+let boardState = undefined;
 
 // Utility functions to make up for not having jQuery
 const $ = selector => document.querySelectorAll(selector);
@@ -227,6 +228,7 @@ function renderPlayGame(game) {
 
   const gameContainer = $("#game_container")[0];
   const gameBoard = $("#game_board")[0];
+  const rectHolder = $("#game_rect")[0];
 
   const containerWidth = gameContainer.clientWidth;
   const containerHeight = gameContainer.clientHeight;
@@ -247,30 +249,16 @@ function renderPlayGame(game) {
   let startY = hScale / 2;
 
   for (var i = 0; i < game.boardSize; i++) {
-    //console.log(i);
 
       for (var j = 0; j < game.boardSize; j++) {
-        //console.log(j);
 
           // Avoid drawing extra lines
           if (startX <= boardWidth - wScale && startY <= boardHeight - hScale) {
 
             let rekt = makeRectangle(startX, startY, wScale, hScale);
 
-            gameBoard.appendChild(rekt);
+            rectHolder.appendChild(rekt);
           }
-
-          // Add piece to board if it exists
-          /*
-          if (column) {
-
-              const colour = column === 2 ? "#000000" : "#FFFFFF";
-
-              let circ = $(makeCircle(startX, startY, Math.min(wScale / 2 - circlePadding, hScale / 2 - circlePadding), colour));
-
-              svg.append(circ);
-          }
-          */
 
           startX += wScale;
       }
@@ -291,18 +279,18 @@ function renderPlayGame(game) {
     gameBoard
   };
 
-  $("#game_board")[0].addEventListener('click', (ev) => {
-
-    // Magic numbers, nothing to see here
-    let multi = game.boardSize === 9 ? 0.98 : (game.boardSize === 13 ? 1.25 : 1.75);
+  $("#game_board")[0].addEventListener('click', (ev) => {    
 
     let hitX = ev.offsetX;
     let hitY = ev.offsetY;
 
     if (ev.target.nodeName !== "svg") {
 
-      hitX -= ((ev.offsetX * multi) / boardHeight) * wScale;
-      hitY -= ((ev.offsetY * multi) / boardHeight) * hScale;
+      // Magic numbers, nothing to see here
+      //let multi = game.boardSize === 9 ? 0.98 : (game.boardSize === 13 ? 1.25 : 1.75);
+
+      //hitX -= ((ev.offsetX * multi) / boardHeight) * wScale;
+      //hitY -= ((ev.offsetY * multi) / boardHeight) * hScale;
     }
 
     const findClosest = (goal, list) => list.reduce(function (prev, curr) {
@@ -332,11 +320,33 @@ function renderPlayGame(game) {
     let y = Math.floor(hitY / hScale);
 
     socket.emit('playMove', x, y);
- 
-    //let circ = makeCircle(hitX, hitY, Math.min(wScale / 1.65 - circlePadding, hScale / 1.65 - circlePadding), "url('#blackGrad')");
-
-    //gameBoard.appendChild(circ);
   });
+}
+
+function renderBoardTokens(board) {
+
+  const tokenHolder = $("#game_tokens")[0];
+
+  tokenHolder.innerHTML = "";
+
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[i].length; j++) {
+
+      const token = board[i][j];
+
+      if (token) {
+
+        let hitX = activeGame.startX + i * activeGame.wScale;
+        let hitY = activeGame.startY + j * activeGame.hScale;
+
+        let circ = makeCircle(hitX, hitY, 
+          Math.min(activeGame.wScale / 1.65 - activeGame.circlePadding, activeGame.hScale / 1.65 - activeGame.circlePadding),
+          token === "Black" ? "url('#blackGrad')" : "url('#whiteGrad')");
+
+        tokenHolder.appendChild(circ);
+      }
+    }
+  }
 }
 
  // Application entry point
@@ -344,42 +354,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderCreateGame();
 });
-/*
-document.getElementById("playmove").addEventListener("click", () => {
 
-	console.log("playmove");
-
-	var UserID = 1;
-	var x = 2;
-	var y = 3;
-	socket.emit('playMove', UserID, x, y);
-});
-
-document.getElementById("passmove").addEventListener("click", () => {
-
-	console.log("passmove called");
-
-	var GameID = 123;
-	var UserID = 1;
-	socket.emit('passMove', GameID, UserID);
-});
-
-document.getElementById("joingame").addEventListener("click", () => {
-
-	console.log("joingame called");
-
-	var GameID = 123;
-	var UserID = 1;
-	socket.emit('joinGame', GameID, UserID);
-});
-*/
 socket.on('gameCreated', game => {
 
   console.log(game);
 
   renderPlayGame(game);
-  //document.getElementById("gameid").innerHTML = game.gameID;
-  //document.getElementById("gameid").innerHTML = game.gameData.boardSize;
 });
 
 socket.on('failJoinGame', msg => {
@@ -406,4 +386,9 @@ socket.on('showMove', (colour, x, y) => {
     colour === "Black" ? "url('#blackGrad')" : "url('#whiteGrad')");
 
   activeGame.gameBoard.appendChild(circ);
+});
+
+socket.on('showBoard', board => {
+
+  renderBoardTokens(board);
 });
