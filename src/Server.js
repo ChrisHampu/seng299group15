@@ -12,13 +12,13 @@ class Server {
     this.allGames = [];
   }
   
-  createGame (player1, boardsize, gametype) { //Passing the player guids.
+  createGame (player1, boardsize, gametype, colour) { //Passing the player guids.
     //this.NumberOfGames ++;       //increment number of games.
 	
 	console.log("createGame called");
 
     // Need to remove the socket before it gets serialized to the game data
-    const newGame = new Game(Object.assign({}, player1, { socket: undefined }), boardsize, gametype);
+    const newGame = new Game(player1, boardsize, gametype);
 
   	if (gametype === 'Network') {
   		this.allGames.push(game); //Store game reference in server.
@@ -43,15 +43,15 @@ class Server {
     //this.updatePlayers(newGame.gameID); //?
   }
 
-  joinGame(user, id) {
-  
-	console.log("joinGame called");
+  // user becomes player 2
+  joinGame(user, gameID) {
 
-    let game = this.findGameById(id);
+    let game = this.findGameById(gameID);
 
-    if (null === game) {
+    if (!game) {
 
       user.socket.emit('failJoinGame');
+
     } else {
 
       game.addPlayer(user);

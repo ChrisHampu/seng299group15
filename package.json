@@ -24,10 +24,11 @@
     "passport": "^0.3.2",
     "passport-google-oauth": "^1.0.0",
     "node-uuid": "^1.4.7",
-	"mongodb": ""
+    "mongodb": ""
   },
   "devDependencies": {
     "express-livereload": "^0.0.24",
-    "connect-livereload": "^0.5.4"
+    "connect-livereload": "^0.5.4",
+    "stack-trace": "0.0.9"
   }
 }

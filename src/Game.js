@@ -10,7 +10,10 @@ class Game {
     //How is GameID generated? Is it just the number of games + 1?
     var gameID = uuid.v4();
 
-    this.gameData = new GameData(gameID, inPlayerOne, undefined, inBoardSize)
+    this.playerOne = inPlayerOne; // This object has access to the socket
+    this.playerTwo = undefined;
+
+    this.gameData = new GameData(gameID, Object.assign({}, inPlayerOne, { socket: undefined }), undefined, inBoardSize)
   }
   
   playMove (UserID, x, y) {
@@ -23,13 +26,15 @@ class Game {
     
   }
     
-    addPlayer (user){
+  addPlayer (inPlayerTwo){
 
-        this.gameData.Player2 = user;
-        //called when person not the owner of game accesses the game.
-        this.gameData.Player1.socket.emit('playerJoined', this.gameData);
+    this.playerTwo = inPlayerTwo;
 
-    }
+    this.gameData.playerTwo = Object.assign({}, inPlayerTwo, { socket: undefined });
+
+    this.playerOne.socket.emit('playerJoined', this.gameData);
+    this.playerTwo.socket.emit('joinGame', this.gameData);
+  }
 
     
   checkMove (GameID, UserID, x, y) {

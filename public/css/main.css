@@ -1,0 +1,22 @@
+.create_radio {
+
+  display: inline-block;
+
+}
+
+.create_radio:not(:last-child) {
+  padding-right: 0.75rem;
+
+}
+
+.user_name {
+  color: #fff;
+  margin-right: 1rem;
+}
+
+.user_picture {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}

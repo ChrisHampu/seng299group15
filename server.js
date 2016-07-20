@@ -3,6 +3,7 @@
 //-----------------------------------------------------------------------------
 "use strict";
 
+var stackTrace = require('stack-trace');
 var Server = new (require('./src/Server'));
 var express = require('express')
 var app = express();
@@ -104,6 +105,13 @@ app.get('/auth/callback',
 	}
 );
 
+app.get('/logout', (req, res, err) => {
+
+  req.logout();
+
+  res.redirect('/');
+});
+
 //-----------------------------------------------------------------------------
 //     CONNECTIONS
 //-----------------------------------------------------------------------------
@@ -116,28 +124,37 @@ io.on('connection', socket => {
 
   if (socket.handshake.session.user) {
 
-  	console.log(user.name + " connected");
+  	console.log(user.fullName + " connected");
+
+    socket.emit('connected', socket.handshake.session.user);
+
+    socket.on('error', err => {
+
+      console.log(stackTrace.parse(err)[0]);
+
+      console.log('Socket error: ', err);
+    });
 
   	// This function runs when the client sends a 'createGame' message
-  	socket.on('createGame', (gameType, boardSize) => {
+  	socket.on('createGame', (gameType, boardSize, colour) => {
 
-  		Server.createGame(user, gameType, boardSize);
+  		Server.createGame(user, gameType, boardSize, colour);
     });
 
-	socket.on('joinGame', id => {
+  	socket.on('joinGame', id => {
 
-        Server.joinGame(user, id);
-    });
-	
-	socket.on('playMove', (userID, x, y) => {
-	
-		Server.playMove(userID, x, y);
-	});
-	
-	socket.on('passMove', (gameID, userID) => {
-	
-		Server.passMove(userID, gameID);
-	});
+          Server.joinGame(user, id);
+      });
+  	
+  	socket.on('playMove', (userID, x, y) => {
+  	
+  		Server.playMove(userID, x, y);
+  	});
+  	
+  	socket.on('passMove', (gameID, userID) => {
+  	
+  		Server.passMove(userID, gameID);
+  	});
 
   } else {
 		console.log("Unauthenticated user connected");

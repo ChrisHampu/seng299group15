@@ -1,6 +1,7 @@
+"use strict";
 
 const mongodb = require('mongodb');
-let mongoClient = mongodb.MongoClient;
+const mongoClient = mongodb.MongoClient;
 
 class Database {
 
@@ -75,7 +76,7 @@ class Database {
 	
 	removeFromCache(gameID) {
 	
-		let gameIndex = this.gameCache.find(el => el.gameID === gameID);
+		let gameIndex = this.gameCache.findIndex(el => el.gameID === gameID);
 		
 		if (gameIndex !== -1) {
 			

@@ -6,42 +6,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Foundation for Sites</title>
     <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/main.css">
   </head>
-  <body background="images/bg02.jpg">
-    <div class="top-bar">
-        <div class="top-bar-left">
-            <ul class="dropdown menu" data-dropdown-menu>
-                <li class="menu-text" id="headline">UVic Seng299 Group 15</li>
-                <li>
-                    <div class="topbar">
-                        <img src="http://roadincorporated.com/images/uploads/ferrari_testarossa/side.png" class="zgg go">
+    <body>
+        <div class="top-bar" id="header_anchor">
+            <div class="top-bar-left">
+                <ul class="menu" id="left_menu_anchor">
+                    <!--<li><a type="button" class="secondary hollow button" href="index.html">Home</a></li>-->
+                    <li><a align="center" id="headline"><b>UVic Seng299 Group 15</b></a></li>
+                </ul>
+            </div>
+            <div class="top-bar-right">
+                <ul class="menu" style="display: inline-block">
+                    <li id="user_info_anchor"></li>
+                    <li><a type="button" class="button" href="/logout">Logout</a></li>
+                </ul>
+                <ul class="menu" id="right_menu_anchor" style="display: inline-block">
+                </ul>
+            </div>
+        </div>
+        <div class="row" align="center" id="body_anchor">
+        </div>
+
+    <template id="userHeaderInfoTemplate">
+        <img id="user_picture" class="user_picture" src="" />
+        <span id="user_name" class="user_name"></span>
+    </template>
+
+    <template id="joinGamePageMenu">
+        <li><button class="success button" id="renderCreateGameButton">Create New Game</button></li>  
+    </template>
+
+    <template id="createGamePageMenu">
+        <li><button class="success button" id="renderJoinGameButton">Join Existing Game</button></li>
+    </template>
+
+    <template id="joinGameTemplate">
+        <div class="large-3 columns"><!-- ... --></div>
+            <h2>Please Enter Game ID to Join Previous Games</h2>
+            <input type="search" placeholder="GameID">
+            <button class="large button" id="joinGame">Join Game</button>
+        <div class="large-3 columns"><!-- ... --></div>
+    </template>
+
+    <template id="createGameTemplate">
+        <div class="large-3 columns"><!-- ... --></div>
+        <h2>Select game options</h2>
+        <div class="large-3 columns"><!-- ... --></div>
+        <div align="center">
+            <p class="green">Select color</p>
+            <form action="" id="token_form">
+                <div class="row">
+                    <div class="large-6 columns large-offset-3" align="center">
+                        <div class="create_radio">
+                            <input type="radio" name="form_token" value="Black" checked="true"> Black
+                        </div>
+                        <div class="create_radio">
+                            <input type="radio" name= "form_token" value="White"> White
+                        </div>
                     </div>
-                </li>
-            </ul>
+                </div>
+            </form>
         </div>
-        <div class="top-bar-right">
-            <ul class="dropdown menu" data-dropdown-menu>
-                <li><a type="button" class="success button" href="gamesettings.html">Choose Game Settings</a></li>
-            </ul>
+        <div align="center">
+            <p class="green">Select Mode</p>
+            <form action=" " id="mode_form">
+                <div class="row">
+                    <div class="large-6 columns large-offset-3" align="center">
+                        <div class="create_radio">
+                            <input type="radio" name="form_mode" value="AI" checked="true"> AI
+                        </div>
+                        <div class="create_radio">
+                            <input type="radio" name="form_mode" value="Hotseat"> Hotseat
+                        </div>
+                        <div class="create_radio">
+                            <input type="radio" name="form_mode" value="Network"> Network
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
-    </div>
-    <div class="row" id="wrapper">
-        <div class="large-3 columns"><!-- ... --></div>
-        <h2>GO Game</h2>
-        <div class="large-3 columns"><!-- ... --></div>
-    </div>
-    <div class="row" id="wrapper" align="middle">
-        <div class="large-3 columns"><!-- ... --></div>
-            <a class="hollow button" href="/auth">Sign In with Google</a>
-        <div class="large-3 columns"><!-- ... --></div>
-    </div>
-    <div class="row" id="wrapper" align="middle">
-        <div class="large-3 columns"><!-- ... --></div>
-        <div class="flex-video">
-           <iframe width="560" height="315" src="https://www.youtube.com/embed/xPSJtzvSxEY" frameborder="0" allowfullscreen></iframe>
+         <div class="row" id="wrapper" align="center">
+            <div class="large-3 columns"><!-- ... --></div>
+                <p class="green">Select Board Size</p>
+            <div class="large-3 columns"><!-- ... --></div>
         </div>
-        <div class="large-3 columns"><!-- ... --></div>
-    </div>
+        <div class="row" id="wrapper" align="center">
+            <div class="large-3 columns"><!-- ... --></div>
+            <div class="large-6 columns"><!-- ... --></div>
+                <select id="form_board"> 
+                    <option value="9">9x9</option>
+                    <option value="13">13x13</option>
+                    <option value="19">19x19<option>
+                </select>
+            <div class="large-3 columns"><!-- ... --></div>
+        </div>
+        <div class="row" id="wrapper" align="center">
+            <div class="large-3 columns"><!-- ... --></div>
+            <button class="large hollow button" id="createGameButton">Create New Game</button>
+            <div class="large-3 columns"><!-- ... --></div>
+        </div>
+    </template>
+
+    <template id="gamePlayTemplate">
+        <h1 align="center">My Go Board</h1>
+        <div style='width:100%;'>
+            <div id='canvas'>
+
+            </div>
+        </div>
+        <div class="row" id="wrapper">
+            <div class="large-3 columns"><!-- ... --></div>            
+            <a class="button" id="passmove">Pass Move</a>
+            <div class="large-3 columns"><!-- ... --></div>
+        </div>
+    </template>
+
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/what-input/what-input.js"></script>
     <script src="bower_components/foundation-sites/dist/foundation.js"></script>
