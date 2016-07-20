@@ -1,0 +1,47 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foundation for Sites</title>
+    <link rel="stylesheet" href="css/app.css">
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="top-bar-left">
+            <ul class="menu">
+                <li><button type="button" class="hollow button" href="http://localhost:3000/index.html">Home</button></li>
+                <li><hi align="center" id="headline">Player 1</hi></li>
+                <li>
+                    <div class="topbar">
+                        <img src="http://roadincorporated.com/images/uploads/ferrari_testarossa/side.png" class="zgg go">
+                    </div>
+                </li>
+            </ul>
+    </div>
+    <div class="top-bar-right">
+      <ul class="menu">
+         <li><button type="button" class="button" href="http://localhost:3000/gamesettings.html">Logout</button></li>
+        <li><button class="success button">Create New Game</button></li>
+      </ul>
+    </div>
+    </div>
+    <h1 align="center">My Go Board</h1>
+    <div style='width:100%;'>
+        <div id='canvas'>
+
+        </div>
+    </div>
+    <div class="row" id="wrapper">
+        <div class="large-3 columns"><!-- ... --></div>            
+        <a class="button" id="passmove">Pass Move</a>
+        <div class="large-3 columns"><!-- ... --></div>
+    </div>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/what-input/what-input.js"></script>
+    <script src="bower_components/foundation-sites/dist/foundation.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="js/client.js"></script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foundation for Sites</title>
+    <link rel="stylesheet" href="css/app.css">
+  </head>
+    <body>
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <ul class="menu">
+                    <li><button type="button" class="hollow button" href="http://localhost:3000/index.html">Home</button></li>
+                    <li><hi align="center" id="headline">Game Settings</hi></li>
+                    <li>
+                        <div class="topbar">
+                            <img src="http://roadincorporated.com/images/uploads/ferrari_testarossa/side.png" class="zgg go">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="top-bar-right">
+                <ul class="menu">
+                    <li><button type="button" class="button" href="http://localhost:3000/gamesettings.html">Logout</button></li>
+                    <li><button type="button" class="alert button" href="http://localhost:3000/gamesettings.html">Join Game</button></li>
+                </ul>
+            </div>
+        </div>
+		<div align="center">
+			<form action = " ">
+				<input type = "checkbox" name = "Token" value = "Black"> Black
+				<input type = "checkbox" name = "Token" value = "White"> White
+			</form>
+		</div>
+        <div align="center">
+			<form action = " ">
+				<input type = "checkbox" name = "Token" value = "AI"> AI
+				<input type = "checkbox" name = "Token" value = "Hotseat"> Hotseat
+			</form>
+		</div>
+        <div class="row" id="wrapper" align="center">
+            <div class="large-3 columns"><!-- ... --></div>
+            <div class="large-6 columns"><!-- ... --></div>
+                <div class="button">
+			         <p>Board Size</p>
+			     <select align="center"> 
+				    <option>9x9</option>
+				    <option>13x13</option>
+				    <option>19x19<option>
+			     </select>
+                </div>
+            <div class="large-3 columns"><!-- ... --></div>
+		</div>
+        <div class="row" id="wrapper" align="center">
+            <div class="large-3 columns"><!-- ... --></div>
+            <a class="large button" href="http://localhost:3000/create.html">Create New Game</a>
+            <div class="large-3 columns"><!-- ... --></div>
+        </div>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/what-input/what-input.js"></script>
+    <script src="bower_components/foundation-sites/dist/foundation.js"></script>
+    <script src="js/app.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="js/client.js"></script>
+  </body>
+</html>
