@@ -147,14 +147,9 @@ io.on('connection', socket => {
       Server.joinGame(user, id);
     });
   	
-  	socket.on('playMove', (x, y) => {
+  	socket.on('playMove', (x, y, pass) => {
   	
-  		Server.playMove(user, x, y);
-  	});
-  	
-  	socket.on('passMove', (gameID, userID) => {
-  	
-  		Server.passMove(user);
+  		Server.playMove(user, x, y, pass);
   	});
 
   } else {

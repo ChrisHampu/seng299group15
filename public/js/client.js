@@ -291,6 +291,11 @@ function renderPlayGame(game) {
     gameBoard
   };
 
+  $("#passMoveButton")[0].addEventListener('click', ev => {
+
+    socket.emit('playMove', 0, 0, true);
+  });
+
   $("#game_board")[0].addEventListener('click', (ev) => {    
 
     let hitX = ev.offsetX;

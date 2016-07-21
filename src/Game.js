@@ -56,7 +56,7 @@ class Game {
     return this.gameData.history[this.gameData.history.length - 1].colour === "White" ? "Black" : "White";
   }
 
-  getCanPlayMove(user, x, y) {
+  getCanPlayMove(user, x, y, pass) {
 
     let canPlayMove = false;
 
@@ -74,7 +74,7 @@ class Game {
     }
 
     // Check actual move
-    if (!this.checkMove(user, x, y)) {
+    if (!pass && !this.checkMove(user, x, y)) {
       canPlayMove = false;
     }
 
@@ -88,13 +88,13 @@ class Game {
       return;
     }
 
-    if (this.getCanPlayMove(user, x, y) === false) {
+    if (this.getCanPlayMove(user, x, y, pass) === false) {
       return;
     }
 
     const newColour = this.gameData.gameType !== "Hotseat" ? user.colour : this.getNextMovingPlayerColour();
 
-    this.gameData.history.push({colour: newColour, x, y});
+    this.gameData.history.push({colour: newColour, x, y, pass});
 
     // Hot seat game play needs to alternate colours
     this.playerOne.socket.emit('showMove', newColour, x, y, pass);
@@ -102,7 +102,8 @@ class Game {
     if (this.gameData.gameType !== "Hotseat" && this.playerTwo.id !== "AI") {
       this.playerTwo.socket.emit('showMove', newColour, x, y, pass);
     } else if (this.playerTwo.id === "AI") {
-		var tmpBoard = new Board(this.gameData.history);
+      
+		  var tmpBoard = new Board(this.gameData.history);
 
       // If player made a valid move, now the AI needs to perform a move
       this.getNextMoveFromAI(move => {

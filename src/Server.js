@@ -3,9 +3,6 @@
 var Game = require('./Game');
 
 class Server {
-
-  // The number of games is just the array size of 'allGames'
-  //var NumberOfGames;    //integer
   
   constructor() {
     
@@ -13,8 +10,6 @@ class Server {
   }
   
   createGame (player, boardsize, gametype, colour) { //Passing the player guids.
-	
-	 console.log("createGame called");
 
     const newGame = new Game(player, boardsize, gametype, colour);
 
@@ -44,20 +39,8 @@ class Server {
 
     return this.allGames.find(game => game.gameData.gameID === gameID || game.gameData.gameID.startsWith(gameID));
   }
-
-  passMove (user) {
   
-    console.log("called passMove");
-  
-  }
-  
-  playMove (user, x, y) {
-  
-  	console.log("called playMove");
-  	  
-  	  //call playmove out of "Game" class functions
-  	  //this.allGames[GameID].playMove(UserID, x, y);
-
+  playMove (user, x, y, pass) {
 
   	var game = this.findGameById(user.activeGame);
 
@@ -65,40 +48,8 @@ class Server {
       return;
     }
 
-  	game.playMove(user, x, y);
-  	//game.updatePlayers(gameID);
+  	game.playMove(user, x, y, pass);
   }
-  
-  
-  //Need to send boardstate.
-/*  updatePlayers (gameID) {
-
-    const game = this.findGameById(gameID);
-    
-    if (!game) {
-      return;
-    }
-
-    //IF HOTSEAT PLAY, SEND
-	
-  	if ('Hotseat' == game.gameData.gameType){
-  		//send boardstate, and color of next move
-  	}
-    else {
-  		if ('AI' == game.gameData.gameType){
-  			//If AI moves next
-  			//getMoveFromAI()
-  			//always update human player, but if it is their turn, send the turn request flag.
-  		}
-  		else if ('network' == game.gameData.gameType){
-  			
-  		}
-  		else {
-  			//error message			
-  		}
-  		
-  	}
-  } */
 }
 
 module.exports = Server;
