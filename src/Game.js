@@ -64,10 +64,9 @@ class Game {
     const nextColour = this.getNextMovingPlayerColour();
 
     // Hot seat games don't need to verify the current player colour; its the same player
-    if (!this.gameData.gameType === "Hotseat") {
-      if (user.id === this.playerOne.id && this.playerOne.colour === nextColour) {
-        canPlayMove = true;
-      } else if(user.id === this.playerTwo.id && this.playerTwo.colour === nextColour) {
+    if (this.gameData.gameType !== "Hotseat") {
+
+      if (user.colour === nextColour) {
         canPlayMove = true;
       }
     } else {
@@ -82,7 +81,7 @@ class Game {
     return canPlayMove;
   }
 
-  playMove(user, x, y) {
+  playMove(user, x, y, pass) {
 
     // Make sure there is a second player
     if (!this.playerTwo) {
@@ -98,10 +97,10 @@ class Game {
     this.gameData.history.push({colour: newColour, x, y});
 
     // Hot seat game play needs to alternate colours
-    this.playerOne.socket.emit('showMove', newColour, x, y);
+    this.playerOne.socket.emit('showMove', newColour, x, y, pass);
 
-    if (this.gameData.gameType !== "Hotseat" && this.playerTwo.id !== "AI" && this.playerOne.id !== this.playerTwo.id) {
-      this.playerTwo.socket.emit('showMove', user.colour, x, y);
+    if (this.gameData.gameType !== "Hotseat" && this.playerTwo.id !== "AI") {
+      this.playerTwo.socket.emit('showMove', newColour, x, y, pass);
     } else if (this.playerTwo.id === "AI") {
 		var tmpBoard = new Board(this.gameData.history);
 
@@ -157,13 +156,13 @@ class Game {
     this.playerTwo = inPlayerTwo;
 
     this.playerTwo.activeGame = this.gameData.gameID;
-    this.playerTwo.colour = getOppositeColour(this.playerOne.colour);
+    this.playerTwo.colour = this.getOppositeColour(this.playerOne.colour);
 
     // Need to remove the socket before it gets serialized to the game data
     this.gameData.playerTwo = Object.assign({}, inPlayerTwo, { socket: undefined });
 
-    this.playerOne.socket.emit('playerJoined', this.gameData);
-    this.playerTwo.socket.emit('joinGame', this.gameData);
+    this.playerOne.socket.emit('playerJoined', this.gameData.playerTwo);
+    this.playerTwo.socket.emit('joinGame', this.gameData, this.gameData.playerTwo, this.gameData.playerOne);
   }
 
   // Check actual board x/y coordinates + other logic

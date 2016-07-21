@@ -3,6 +3,8 @@
 var socket = io();
 let activeGame = undefined;
 let boardState = undefined;
+let selfUser = undefined;
+let opponentUser = undefined;
 
 // Utility functions to make up for not having jQuery
 const $ = selector => document.querySelectorAll(selector);
@@ -180,6 +182,16 @@ function renderUserInfo(user) {
   anchor.appendChild(node);
 }
 
+function renderTitleText(title) {
+
+  document.getElementById("game_title").innerHTML = title;
+}
+
+function renderTurnText(title) {
+
+  document.getElementById("game_turn").innerHTML = title;
+}
+
 function renderPlayGame(game) {
   const content = loadContent("#gamePlayTemplate");
 
@@ -189,7 +201,7 @@ function renderPlayGame(game) {
 
     if (!game.playerTwo) {
       title = "Waiting for Opponent";
-       content.getElementById("game_id").innerHTML = `Game ID: ${game.gameID.slice(0, 8)}`;
+      content.getElementById("game_id").innerHTML = `Game ID: ${game.gameID.slice(0, 8)}`;
     } else {
       title = game.playerTwo.fullName;
     }
@@ -199,15 +211,15 @@ function renderPlayGame(game) {
     title = "Playing vs AI";
 
     if (game.playerOne.colour === "Black") {
-      content.getElementById("game_turn").innerHTML = "Your turn";
+      renderTurnText("Your turn");
     } else {
-      content.getElementById("game_turn").innerHTML = "AI's turn";
+      renderTurnText("AI's turn");
     }
   } else if(game.gameType === "Hotseat") {
 
     title = "Hotseat Go";
 
-    content.getElementById("game_turn").innerHTML = "Black piece's turn";
+    renderTurnText("Black piece's turn");
   }
 
   content.getElementById("game_title").innerHTML = title;
@@ -360,6 +372,9 @@ socket.on('gameCreated', game => {
   console.log(game);
 
   renderPlayGame(game);
+
+  selfUser = game.playerOne;
+  opponentUser = game.playerTwo;
 });
 
 socket.on('failJoinGame', msg => {
@@ -372,23 +387,71 @@ socket.on('connected', user => {
   renderUserInfo(user);
 });
 
-socket.on('showMove', (colour, x, y) => {
+socket.on('showMove', (colour, x, y, pass) => {
 
-  console.log(activeGame);
+  if (!pass) {
+    let hitX = activeGame.startX + x * activeGame.wScale;
+    let hitY = activeGame.startY + y * activeGame.hScale;
 
-  let hitX = activeGame.startX + x * activeGame.wScale;
-  let hitY = activeGame.startY + y * activeGame.hScale;
+    let circ = makeCircle(hitX, hitY, 
+      Math.min(activeGame.wScale / 1.65 - activeGame.circlePadding, activeGame.hScale / 1.65 - activeGame.circlePadding),
+      colour === "Black" ? "url('#blackGrad')" : "url('#whiteGrad')");
 
-  console.log(x, y, hitX, hitY);
+    activeGame.gameBoard.appendChild(circ);
+  }
 
-  let circ = makeCircle(hitX, hitY, 
-    Math.min(activeGame.wScale / 1.65 - activeGame.circlePadding, activeGame.hScale / 1.65 - activeGame.circlePadding),
-    colour === "Black" ? "url('#blackGrad')" : "url('#whiteGrad')");
-
-  activeGame.gameBoard.appendChild(circ);
+  if (selfUser.colour !== colour) {
+    if (pass === true) {
+      renderTurnText("Opponent passed");
+    } else if (!pass) {
+      renderTurnText("Your turn");
+    }
+  } else {
+    if (pass === true) {
+      renderTurnText("You passed");
+    } else if (!pass) {
+      renderTurnText("Opponents turn");
+    }
+  }
 });
 
 socket.on('showBoard', board => {
 
   renderBoardTokens(board);
+});
+
+socket.on('playerJoined', opponent => {
+
+  document.getElementById("game_id").innerHTML = "";
+
+  let selfColour = opponent.colour === "White" ? "Black" : "White";
+
+    opponentUser = opponent;
+
+  if (selfColour === "Black") {
+    renderTurnText("Your turn");
+  } else {
+    renderTurnText("Opponents turn");
+  }
+
+  renderTitleText(`Playing as ${selfColour} vs ${opponent.fullName}`);
+});
+
+socket.on('joinGame', (game, self, opponent) => {
+
+  renderPlayGame(game);
+
+  let selfColour = self.colour;
+  let opponentColour = selfColour === "White" ? "Black" : "White";
+
+  renderTitleText(`Playing as ${selfColour} vs ${opponent.fullName}`);
+
+  selfUser = self;
+  opponentUser = opponent;
+
+  if (selfColour === "Black") {
+    renderTurnText("Your turn");
+  } else {
+    renderTurnText("Opponents turn");
+  }
 });

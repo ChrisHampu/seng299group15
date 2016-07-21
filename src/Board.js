@@ -1,3 +1,5 @@
+"use strict";
+
 class Board {
 
   // THIS BUILDS THE BOARD STATE BY EXECUTING THE MOVES IN TURN.
