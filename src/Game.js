@@ -191,7 +191,7 @@ class Game {
     // This function doesn't exist?
   	//Board.playMoveLocal(board, x, y, user.colour);
   	
-    board.checkCaptures(x, y, this.getNextMovingPlayerColour() === "White" ? "Black" : "White");
+    board.checkCaptures(x, y, this.getNextMovingPlayerColour());
 
   	//if move is surrounded
   	if (!board.checkLiberties(x,y,this.getNextMovingPlayerColour() === "White" ? "Black" : "White")) {

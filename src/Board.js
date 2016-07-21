@@ -92,39 +92,52 @@ class Board {
 
   checkCaptures(x, y, inColour) {
 
-     if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
-      const oppColour = inColour;
+    var captures = 0;
 
-      this._checkCaptures(x-1, y, oppColour); 
-      this._checkCaptures(x, y-1, oppColour);
-      this._checkCaptures(x+1, y, oppColour);
-      this._checkCaptures(x, y+1, oppColour);
+     if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
+      const oppColour = inColour === "White" ? "Black" : "White";
+
+      captures += this._checkCaptures(x-1, y, oppColour); 
+      captures += this._checkCaptures(x, y-1, oppColour);
+      captures += this._checkCaptures(x+1, y, oppColour);
+      captures += this._checkCaptures(x, y+1, oppColour);
     }
+
+    console.log("capture points", captures);
+
+    return captures;
   }
 
   _checkCaptures(x, y, inColour) {
 
     if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
 
-      if (this.checkLiberties(x, y, inColour) === false) {
+      if (this.currentState[x][y] !== 0 && this.checkLiberties(x, y, inColour) === false) {
 
-        this._doCapture(x, y, inColour);
+        return this._doCapture(x, y, inColour);
       }
     }
+
+    return 0;
   }
 
   _doCapture(x, y, inColour) {
 
+    var captures = 0;
+
     if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1 && this.currentState[x][y] === inColour) {
 
       this.currentState[x][y] = 0;
+      captures++;
       console.log("captures", x, y);
 
-      this._doCapture(x+1, y, inColour);
-      this._doCapture(x, y+1, inColour);
-      this._doCapture(x-1, y, inColour);
-      this._doCapture(x, y-1, inColour);
+      captures += this._doCapture(x+1, y, inColour);
+      captures += this._doCapture(x, y+1, inColour);
+      captures += this._doCapture(x-1, y, inColour);
+      captures += this._doCapture(x, y-1, inColour);
     }
+
+    return captures;
   }
 
   checkLiberties(x, y, inColour) {
