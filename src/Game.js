@@ -252,6 +252,59 @@ class Game {
 	return false;
   }
   
+  //inColour can be either White or Black
+  //returns the score only for the colour counted
+  countPoints(inBoardState, inColour) {
+  	
+  	var score = 0;
+  	if (inColour == "Black")
+  		var otherColour = "White";
+  	else
+  		var otherColour = "Black";
+  		
+  	var otherBoardState = inBoardState;
+  	
+  	for (var x = 0; x < inBoardState[].length; x++) {
+  		for (var x = 0; x < inBoardState[].length; x++) {
+  			//the slot is filled with the same colour, add 1 to score
+			if (inBoardState[x][y] == inColour) {
+				score++;
+  			//check if the territory belongs to the same colour
+			} else if (!checkColourRecursive(otherBoardState, x, y, otherColour)) {
+				score++;
+			}
+  		}
+	}	
+  }
+  
+  //checks that a single point does not connect to any pieces from inColour
+  //effectively checking territory for the opposite colour
+  //returns true if the colour is present, false otherwise
+  checkTerritoryRecursive(inBoardState, x, y, inColour) {
+ 	
+ 	//already been checked
+ 	if (inBoardState[x][y] == "Checked")
+ 		return false;
+  	
+  	//found the colour
+  	if (inBoardState[x][y] == inColour) {
+		inBoardState[x][y] = "Checked";
+  		return true;
+  	} else if (y-1 >= 0 && checkTerritoryRecursive(inBoardState, x, y-1, inColour)) {
+  		return true;
+  	} else if (x-1 >= 0 && checkTerritoryRecursive(inBoardState, x-1, y, inColour)) {
+  		return true;
+  	} else if (x+1 < inBoardState[].length && checkTerritoryRecursive(inBoardState, x+1, y, inColour)) {
+  		return true;
+  	} else if (y+1 < inBoardState[].length && checkTerritoryRecursive(inBoardState, x, y+1, inColour)) {
+  		return true;
+  	}
+  	
+  	//could not find the colour
+  	return false;
+  	
+  }
+  
 }
 
 module.exports = Game;
