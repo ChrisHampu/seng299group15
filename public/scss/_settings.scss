@@ -57,7 +57,9 @@ html {
 }
 
 p.green{
-    font-style: italic;
+    margin: 20px 0 15px !important;
+    color:white;
+    font-family: 'Avenir Next Medium', sans-serif !important;
 }
 $global-width: rem-calc(1200);
 $global-font-size: 100%;

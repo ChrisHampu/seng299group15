@@ -34,7 +34,7 @@
     </template>
 
     <template id="joinGamePageMenu">
-        <li><button class="hollow button" id="renderCreateGameButton">Create New Game</button></li>  
+        <li><button class="success button" id="renderCreateGameButton">Create New Game</button></li>  
     </template>
 
     <template id="createGamePageMenu">
@@ -47,9 +47,9 @@
 
     <template id="joinGameTemplate">
         <div class="large-3 columns"><!-- ... --></div>
-            <h2>Enter ID of game to join</h2>
-            <input type="search" placeholder="Enter game ID" id="game_id_input">
-            <button class="large button" id="joinGame">Join Game</button>
+            <h2 class="gogame">Enter ID of game to join</h2>
+            <input type="search" placeholder="Enter game ID" class="gogame" id="game_id_input">
+            <button class="large hollow button" id="joinGame">Join Game</button>
         <div class="large-12 columns">
             <h5 align="center" id="join_game_fail"></h5>
         </div>
@@ -57,7 +57,7 @@
 
     <template id="createGameTemplate">
         <div class="large-3 columns"><!-- ... --></div>
-        <h2>Select game options</h2>
+        <h2 class="gogame">Select game options</h2>
         <div class="large-3 columns"><!-- ... --></div>
         <div align="center">
             <p class="green">Select color</p>
