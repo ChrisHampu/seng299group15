@@ -1,6 +1,7 @@
 body {
   display: flex;
   flex-direction: column;
+  color: white;
 }
 
 #body_anchor {
