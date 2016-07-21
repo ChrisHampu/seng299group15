@@ -106,6 +106,8 @@ class Game {
       newState = oldBoard.currentState;
     }
 
+    //console.log("Points for", newColour, this.countPoints(newState, newColour));
+
     // Send client new board state, colour of user moving, and the pass state
     this.playerOne.socket.emit('showBoard', newState, newColour, pass);
 
@@ -233,24 +235,24 @@ class Game {
   countPoints(inBoardState, inColour) {
   	
   	var score = 0;
-  	if (inColour == "Black")
-  		var otherColour = "White";
-  	else
-  		var otherColour = "Black";
+
+  	var otherColour = this.getOppositeColour(inColour);
   		
   	var otherBoardState = inBoardState;
   	
-  	for (var x = 0; x < inBoardState[].length; x++) {
-  		for (var x = 0; x < inBoardState[].length; x++) {
-  			//the slot is filled with the same colour, add 1 to score
-			if (inBoardState[x][y] == inColour) {
-				score++;
-  			//check if the territory belongs to the same colour
-			} else if (!checkColourRecursive(otherBoardState, x, y, otherColour)) {
-				score++;
-			}
+  	for (var x = 0; x < inBoardState.length; x++) {
+  		for (var y = 0; y < inBoardState[x].length; y++) {
+
+    			//the slot is filled with the same colour, add 1 to score
+  			if (inBoardState[x][y] == inColour) {
+  				score++;
+
+    			//check if the territory belongs to the same colour
+  			} else if (!this.checkTerritoryRecursive(otherBoardState, x, y, otherColour)) {
+  				score++;
+  			}
   		}
-	}	
+	  }	
   }
   
   //checks that a single point does not connect to any pieces from inColour
@@ -258,28 +260,49 @@ class Game {
   //returns true if the colour is present, false otherwise
   checkTerritoryRecursive(inBoardState, x, y, inColour) {
  	
- 	//already been checked
- 	if (inBoardState[x][y] == "Checked")
- 		return false;
+    if (x >= 0 && x < this.gameData.boardSize - 1 && y >= 0 && y < this.gameData.boardSize - 1) {
+      return false;
+    }
+
+   	//already been checked
+   	if (inBoardState[x][y] == "Checked") {
+      console.log("already checked");
+   		return false;
+    }
   	
   	//found the colour
   	if (inBoardState[x][y] == inColour) {
-		inBoardState[x][y] = "Checked";
+      console.log("Score plus 1");
+		  inBoardState[x][y] = "Checked";
   		return true;
-  	} else if (y-1 >= 0 && checkTerritoryRecursive(inBoardState, x, y-1, inColour)) {
+  	}
+
+    if (y-1 >= 0 && this.checkTerritoryRecursive(inBoardState, x, y-1, inColour)) {
+      console.log("y-1", y-1);
+
   		return true;
-  	} else if (x-1 >= 0 && checkTerritoryRecursive(inBoardState, x-1, y, inColour)) {
+  	}
+
+    if (x-1 >= 0 && this.checkTerritoryRecursive(inBoardState, x-1, y, inColour)) {
+      console.log("x-1", x-1);
+
   		return true;
-  	} else if (x+1 < inBoardState[].length && checkTerritoryRecursive(inBoardState, x+1, y, inColour)) {
+  	}
+
+    if (x+1 < inBoardState.length - 1 && this.checkTerritoryRecursive(inBoardState, x+1, y, inColour)) {
+      console.log("x+1", x+1);
   		return true;
-  	} else if (y+1 < inBoardState[].length && checkTerritoryRecursive(inBoardState, x, y+1, inColour)) {
+  	}
+
+    if (y+1 < inBoardState.length - 1 && this.checkTerritoryRecursive(inBoardState, x, y+1, inColour)) {
+        console.log("y+1", y+1);
   		return true;
   	}
   	
   	//could not find the colour
   	inBoardState[x][y] = "Checked";
+    console.log("Not found");
   	return false;
-  	
   }
   
 }
