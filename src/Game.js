@@ -301,6 +301,7 @@ class Game {
   	}
   	
   	//could not find the colour
+  	inBoardState[x][y] = "Checked";
   	return false;
   	
   }
