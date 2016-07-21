@@ -77,7 +77,7 @@ try {
 
   		database.loadUser(profile.id, (doc) => {
   		
-  			done(null, { id: profile.id, numGamesPlayed: doc.numGamesPlayed, fullName: profile.displayName, profilePicture: profile._json.image.url });
+  			done(null, { id: profile.id, numGamesPlayed: doc ? doc.numGamesPlayed : 0, fullName: profile.displayName, profilePicture: profile._json.image.url });
   		});
 	  
 	  	// The database will need to be called here to retrieve/save the users info

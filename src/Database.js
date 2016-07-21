@@ -10,24 +10,28 @@ class Database {
     this.gameCache = [];
     
 	this.collections = new Map();
-
-	mongoClient.connect("mongodb://localhost:27017", (err, db) => {
-	
-		this.database = db;
-	
-		if(err) {
-			console.log(err);
-			process.exit();
-		}
+	try {
+		mongoClient.connect("mongodb://localhost:27017", (err, db) => {
 		
-		this.getCollection(db, "users", col => {
-			this.collections.set("users", col);
-		});
+			this.database = db;
 		
-		this.getCollection(db, "games", col => {
-			this.collections.set("games", col);
+			if(err) {
+				console.log(err);
+				//process.exit();
+			} else {
+			
+				this.getCollection(db, "users", col => {
+					this.collections.set("users", col);
+				});
+				
+				this.getCollection(db, "games", col => {
+					this.collections.set("games", col);
+				});
+			}
 		});
-	});
+	} catch(err) {
+	
+	}
   }
   
 	getCollection(db, name, cb) {
@@ -117,14 +121,17 @@ class Database {
   
   loadUser(userID,callback) {
   
- 	this.collections.get("users").find({userID}).limit(1).next((err, doc) => {
-	
-		console.log(err);
-		console.log(doc);
+	if (this.collections.has("users")) {
+		this.collections.get("users").find({userID}).limit(1).next((err, doc) => {
 		
-		callback(doc || { userID, numGamesPlayed: 0,  });
-	});
- 
+			console.log(err);
+			console.log(doc);
+			
+			callback(doc || { userID, numGamesPlayed: 0,  });
+		});
+	} else {
+		callback();
+	}
   }
   
   saveUser(user) {
