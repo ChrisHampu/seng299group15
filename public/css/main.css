@@ -50,4 +50,5 @@ body {
 
 .top-bar ul {
   background: none !important;
+  vertical-align: middle !important;
 }
