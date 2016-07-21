@@ -406,7 +406,7 @@ body.is-reveal-open {
   color: #fff !important;
   border-color: #44466c !important;
   background-color: #44466c !important;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22); }
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22); }
 
 .gogame {
   margin: 55px 0 15px !important;
