@@ -47,3 +47,7 @@ body {
 .button_container {
   margin-top: 1.5rem;
 }
+
+.top-bar ul {
+  background: none !important;
+}
