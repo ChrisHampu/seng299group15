@@ -211,15 +211,15 @@ function renderPlayGame(game) {
     title = "Playing vs AI";
 
     if (game.playerOne.colour === "Black") {
-      renderTurnText("Your turn");
+      content.getElementById("game_turn").innerHTML = "Your turn";
     } else {
-      renderTurnText("AI's turn");
+      content.getElementById("game_turn").innerHTML = "AI's turn";
     }
   } else if(game.gameType === "Hotseat") {
 
     title = "Hotseat Go";
 
-    renderTurnText("Black piece's turn");
+    content.getElementById("game_turn").innerHTML = "Black piece's turn";
   }
 
   content.getElementById("game_title").innerHTML = title;
