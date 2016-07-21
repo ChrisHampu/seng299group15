@@ -83,31 +83,37 @@ class Game {
       return;
     }
 
+    // Basic checks; is player the right colour, etc
     if (this.getCanPlayMove(user, x, y, pass) === false) {
       return;
     }
 
+    // Hot seat game play needs to alternate colours
+    const newColour = this.gameData.gameType !== "Hotseat" ? user.colour : this.getNextMovingPlayerColour();
+	
+    // The state to send to the client
     let newState = null;
 
     if (!pass) {
-      newState = this.performMove(user, x, y);
+	
+      // Perform move will do the move and return a new board state
+      // If the move is invalid, it'll return the current board state
+      newState = this.performMove(user, x, y, pass);  
     } else {
+	
+      // If there's a pass, simply send the client the current board state
       const oldBoard = new Board(this.gameData.history, this.gameData.boardSize);
       newState = oldBoard.currentState;
     }
 
-    const newColour = this.gameData.gameType !== "Hotseat" ? user.colour : this.getNextMovingPlayerColour();
-
-    this.gameData.history.push({colour: newColour, x, y, pass});
-
-    //const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
-
-    // Hot seat game play needs to alternate colours
-    //this.playerOne.socket.emit('showMove', newColour, x, y, pass);
+    // Send client new board state, colour of user moving, and the pass state
     this.playerOne.socket.emit('showBoard', newState, newColour, pass);
 
-    if (this.gameData.gameType !== "Hotseat" && this.playerTwo.id !== "AI") {
-      this.playerTwo.socket.emit('showMove', newColour, x, y, pass);
+    // If this is a network game, send move the player 2
+    if (this.gameData.gameType === "Network") {
+      this.playerTwo.socket.emit('showBoard', newState, newColour, pass);
+	 
+    // If this is an AI game, get a new move from the AI and send it to player
     } else if (this.playerTwo.id === "AI") {
 
       // If player made a valid move, now the AI needs to perform a move
@@ -120,9 +126,6 @@ class Game {
         this.playerOne.socket.emit('showBoard', newBoard.currentState, move.pass);
       });
     }
-    
-    //calculate pieces taken and other changes to the board.
-    
   }
 
   getNextMoveFromAI(callback) {
@@ -166,42 +169,42 @@ class Game {
 
   // Check actual board x/y coordinates + other logic
   // Verify there isn't already a piece there, etc
-  //returns true for valid move, false otherwise
-  performMove(user, x, y) {
-    //if too far off the board
 
-    let moveValid = true;
+  performMove(user, x, y, pass) {
     
+    //if too far off the board
   	if (x < 0 || x > this.gameData.boardSize || y < 0 || y > this.gameData.boardSize) {
   		return false;
   	}
   	
+    let duplicated = true;
+    let moveValid = true;
+    const newColour = this.gameData.gameType !== "Hotseat" ? user.colour : this.getNextMovingPlayerColour();
+    
+    // Create board with current history
     let board = new Board(this.gameData.history, this.gameData.boardSize);
-  	
-  	//if spot is taken
+  	// Use it to check that the spot isn't taken
   	if (board.currentState[x][y] != 0) {
       console.log("spot is taken");
-  		moveValid = false;
+  		return board.currentState;
   	}
-  	
-    // This function doesn't exist?
-  	//Board.playMoveLocal(board, x, y, user.colour);
-  	
-    board.checkCaptures(x, y, this.getNextMovingPlayerColour());
+	
+    // Push new move and construct new board state; army capture will be calculated
+    this.gameData.history.push({colour: newColour, x, y, pass});	
+    board = new Board(this.gameData.history, this.gameData.boardSize);
 
-  	//if move is surrounded
+  	// Check if move is surrounded
   	if (!board.checkLiberties(x,y,this.getNextMovingPlayerColour() === "White" ? "Black" : "White")) {
       console.log("no liberties");
   		moveValid = false;
   	}
   	
+    // Construct board state back 3 moves and use it to check for duplicate moves
   	let oldBoard = new Board(this.gameData.history.slice(0, this.gameData.history.length - 3), this.gameData.boardSize);
-  	
-    let duplicated = true;
-
+  	    
   	//if oldBoard == newBoard, return false
   	//checking that move doesnt recreate past board state
-  	for (var i =0; i < this.gameData.boardSize; i++) {
+  	for (var i = 0; i < this.gameData.boardSize; i++) {
   		for (var j = 0; j < this.gameData.boardSize; j++) {
   			if (oldBoard.currentState[i][j] != board.currentState[i][j]) {
   				duplicated = false;
@@ -214,17 +217,15 @@ class Game {
       moveValid = false;
     }
 
+    // If move is invalid, restore previous board history
     if (!moveValid) {
       console.log("Returning old state");
-
-      oldBoard = new Board(this.gameData.history, this.gameData.boardSize);
-
-      return oldBoard.currentState;
+	  
+      this.gameData.history.pop();
     }
 
-    board.currentState[x][y] = this.getNextMovingPlayerColour();
-    
-    return board.currentState;
+    // Return a new board state
+    return new Board(this.gameData.history, this.gameData.boardSize).currentState;
   }
   
 }

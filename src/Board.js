@@ -12,11 +12,6 @@ class Board {
     this.history = inHistory || [];
     this.size = inSize;
 
-    // two dimensional array of integers for pieces on the board.
-    // 0 indicates an empty square,
-    // 1 indicates a black piece,
-    // 2 indicates a white piece.
-
     // Create an empty board
     this.currentState = new Array(inSize);
 
@@ -24,84 +19,62 @@ class Board {
       this.currentState[i] = new Array(inSize);
 
       for (var j = 0; j < inSize; j++) {
-        this.currentState[i][j] = 0;
+      this.currentState[i][j] = 0;
       }
     }
 
-	//build the board array
+    //build the board array
     for (var i = 0; i < this.history.length; i++) {
-		this.playMove(this.history[i].x, this.history[i].y, this.history[i].colour)
-		this.checkCaptures(this.history[i].x, this.history[i].y, this.history[i].colour)
+    
+      if (!this.history[i].pass) {
+      
+        // Recreate board state from history
+        this.playMove(this.history[i].x, this.history[i].y, this.history[i].colour);
+      }
     }
   }
   
   //now plays moves
   playMove(x, y, colour) {
 
-  	this.currentState[x][y] = colour;
-  	
-  	var offColour = "";
-
-  	if (colour == "White")
-  		offColour = "Black";
-  	if (colour == "Black")
-  		offColour = "White";
-
-    //console.log("playing move");
-  	
-    /*
-  	if (!this.checkLiberties(this.currentState, x, y-1, offColour))
-  		this.currentState[x][y-1] = 0;
-
-  	if (!this.checkLiberties(this.currentState, x+1, y, offColour))
-  		this.currentState[x+1][y] = 0;
-
-  	if (!this.checkLiberties(this.currentState, x-1, y, offColour))
-  		this.currentState[x-1][y] = 0;
-
-  	if (!this.checkLiberties(this.currentState, x, y+1, offColour))
-  		this.currentState[x][y+1] = 0;
-    */
-
-    //console.log("Played move");
+    this.currentState[x][y] = colour;
+    
+    this.checkCaptures(x, y, colour);
   }
   
+  // Return a state that the AI can use
   convertToInteger() {
 
-  	let state = new Array(this.size);
+    let state = new Array(this.size);
 
-  	for (var i = 0; i < this.currentState.length; i++) {
+    for (var i = 0; i < this.currentState.length; i++) {
 
       state[i] = new Array(this.size);
 
-  		for (var j = 0; j < this.currentState[i].length; j++) {
+      for (var j = 0; j < this.currentState[i].length; j++) {
 
-  			if (this.currentState[i][j] === "Black") {
-  				state[i][j] = 1;
-  			}
-  			else if (this.currentState[i][j] === "White") {
-  				state[i][j] = 2;
-  			}
-  			else {
-  				state[i][j] = 0;
-  			}
-  		}
-  	}
+        if (this.currentState[i][j] === "Black") {
+          state[i][j] = 1;
+        }
+        else if (this.currentState[i][j] === "White") {
+          state[i][j] = 2;
+        }
+        else {
+          state[i][j] = 0;
+        }
+      }
+    }
 
-  	return state;
+    return state;
   }
 
   //incolour is the colour of the move.
   checkCaptures(x, y, inColour) {
 
-	console.log (inColour, " tries to capture other");
-  
     var captures = 0;
 
     if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
       const oppColour = inColour === "White" ? "Black" : "White";
-	  console.log (oppColour, "oppcolour is this!");
-	  console.log (inColour, "incolour is this!");
 
       captures += this._checkCaptures(x-1, y, oppColour); 
       captures += this._checkCaptures(x, y-1, oppColour);
@@ -109,22 +82,16 @@ class Board {
       captures += this._checkCaptures(x, y+1, oppColour);
     }
 
-    console.log("capture points", captures);
-
     return captures;
   }
 
   //inColour is the colour of the pieces to be taken.
   _checkCaptures(x, y, inColour) {
   
-	console.log (inColour, " is the colour to be captured");
-
     if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
 
-											//if this is true there are liberties.
-											
-		console.log (this.checkLiberties(x, y, inColour), " CHECKED");
-      if (this.currentState[x][y] !== 0 && this.checkLiberties(x, y, inColour) === false) {
+      //if this is true there are liberties.
+      if (this.checkLiberties(x, y, inColour) === false) {
 
         return this._doCapture(x, y, inColour);
       }
@@ -141,7 +108,7 @@ class Board {
 
       this.currentState[x][y] = 0;
       captures++;
-      console.log("captures", x, y);
+      console.log("capture at", x, y);
 
       captures += this._doCapture(x+1, y, inColour);
       captures += this._doCapture(x, y+1, inColour);
@@ -163,7 +130,7 @@ class Board {
       testBoard[i] = new Array(this.size);
 
       for (var j = 0; j < this.size; j++) {
-        testBoard[i][j] = 0;
+      testBoard[i][j] = 0;
       }
     }
 
@@ -172,14 +139,14 @@ class Board {
     console.log(x, y, inColour, "checking liberties");
 
     let liberty = this._checkLiberties(testBoard, x-1, y, inColour) === false && 
-	this._checkLiberties(testBoard, x, y-1, inColour) === false &&
+      this._checkLiberties(testBoard, x, y-1, inColour) === false &&
       this._checkLiberties(testBoard, x+1, y, inColour) === false &&
       this._checkLiberties(testBoard, x, y+1, inColour) === false;
 
     console.log(x, y, inColour, "finished liberties", !liberty);
 
-	//if the spot is not empty return false, if there are no liberties, return false.
-    return !liberty && this.currentState[x][y] === 0;	
+    //if the spot is not empty return false, if there are no liberties, return false.
+    return !liberty;	
   }
 
   //incolour is the colour of the move.
@@ -191,9 +158,9 @@ class Board {
       return false;
     }
 
-	//check the current spot.
+    //check the current spot.
     if (this.currentState[x][y] === 0) {
-		console.log(this.currentState);
+      //console.log(this.currentState);
       console.log(x, y, inColour, "board unoccupied");
       return true;
     }
@@ -207,7 +174,6 @@ class Board {
       console.log(x, y, inColour, "opposite colour");
       return false;
     }
-
     
     testBoard[x][y] = 1;
     
@@ -222,7 +188,7 @@ class Board {
     return hasLiberty;
     
     //return false;
-  }  
+  }	 
 }
 
 module.exports = Board;
