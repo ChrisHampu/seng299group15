@@ -30,9 +30,8 @@ class Board {
 
 	//build the board array
     for (var i = 0; i < this.history.length; i++) {
-    	this.checkCaptures(this.history[i].x, this.history[i].y, this.history[i].colour);
-    	//this.checkLiberties(this.history[i].x, this.history[i].y, this.history[i].colour);
 		this.playMove(this.history[i].x, this.history[i].y, this.history[i].colour)
+		this.checkCaptures(this.history[i].x, this.history[i].y, this.history[i].colour)
     }
   }
   
@@ -92,12 +91,17 @@ class Board {
   	return state;
   }
 
+  //incolour is the colour of the move.
   checkCaptures(x, y, inColour) {
 
+	console.log (inColour, " tries to capture other");
+  
     var captures = 0;
 
     if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
       const oppColour = inColour === "White" ? "Black" : "White";
+	  console.log (oppColour, "oppcolour is this!");
+	  console.log (inColour, "incolour is this!");
 
       captures += this._checkCaptures(x-1, y, oppColour); 
       captures += this._checkCaptures(x, y-1, oppColour);
@@ -110,10 +114,16 @@ class Board {
     return captures;
   }
 
+  //inColour is the colour of the pieces to be taken.
   _checkCaptures(x, y, inColour) {
+  
+	console.log (inColour, " is the colour to be captured");
 
     if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
 
+											//if this is true there are liberties.
+											
+		console.log (this.checkLiberties(x, y, inColour), " CHECKED");
       if (this.currentState[x][y] !== 0 && this.checkLiberties(x, y, inColour) === false) {
 
         return this._doCapture(x, y, inColour);
@@ -141,7 +151,9 @@ class Board {
 
     return captures;
   }
+ 
 
+  //returns true if there are liberties (when liberty value is false).
   checkLiberties(x, y, inColour) {
 
     // create empty board to keep track of which spots have been tested
@@ -160,15 +172,18 @@ class Board {
     console.log(x, y, inColour, "checking liberties");
 
     let liberty = this._checkLiberties(testBoard, x-1, y, inColour) === false && 
-      this._checkLiberties(testBoard, x, y-1, inColour) === false &&
+	this._checkLiberties(testBoard, x, y-1, inColour) === false &&
       this._checkLiberties(testBoard, x+1, y, inColour) === false &&
       this._checkLiberties(testBoard, x, y+1, inColour) === false;
 
-    console.log(x, y, inColour, "finished liberties", liberty);
+    console.log(x, y, inColour, "finished liberties", !liberty);
 
-    return !liberty && this.currentState[x][y] === 0;
+	//if the spot is not empty return false, if there are no liberties, return false.
+    return !liberty && this.currentState[x][y] === 0;	
   }
 
+  //incolour is the colour of the move.
+	// returns true if there's a liberty.
   _checkLiberties(testBoard, x, y, inColour) {
 
     if (x < 0 || y > this.size - 1 || y < 0 || x > this.size - 1) {
@@ -176,7 +191,9 @@ class Board {
       return false;
     }
 
+	//check the current spot.
     if (this.currentState[x][y] === 0) {
+		console.log(this.currentState);
       console.log(x, y, inColour, "board unoccupied");
       return true;
     }
