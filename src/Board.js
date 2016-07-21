@@ -67,7 +67,7 @@ class Board {
   
   convertToInteger() {
 
-  	state = new Array(this.size);
+  	let state = new Array(this.size);
 
   	for (var i = 0; i < this.currentState.length; i++) {
 
@@ -75,10 +75,10 @@ class Board {
 
   		for (var j = 0; j < this.currentState[i].length; j++) {
 
-  			if (this.currentState[i][j] == "Black") {
+  			if (this.currentState[i][j] === "Black") {
   				state[i][j] = 1;
   			}
-  			else if (this.currentState[i][j] == "White") {
+  			else if (this.currentState[i][j] === "White") {
   				state[i][j] = 2;
   			}
   			else {

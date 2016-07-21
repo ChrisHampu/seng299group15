@@ -96,8 +96,11 @@ class Game {
 
     this.gameData.history.push({colour: newColour, x, y, pass});
 
+    const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
+
     // Hot seat game play needs to alternate colours
-    this.playerOne.socket.emit('showMove', newColour, x, y, pass);
+    //this.playerOne.socket.emit('showMove', newColour, x, y, pass);
+    this.playerOne.socket.emit('showBoard', newBoard.currentState, newColour, pass);
 
     if (this.gameData.gameType !== "Hotseat" && this.playerTwo.id !== "AI") {
       this.playerTwo.socket.emit('showMove', newColour, x, y, pass);
@@ -106,8 +109,11 @@ class Game {
       // If player made a valid move, now the AI needs to perform a move
       this.getNextMoveFromAI(move => {
         
-        this.gameData.history.push({colour: move.c === 1 ? "White" : "Black", x: move.x, y: move.y});
-        this.playerOne.socket.emit('showMove', move.c === 1 ? "White" : "Black", move.x, move.y);
+        this.gameData.history.push({colour: move.c === 1 ? "Black" : "White", x: move.x, y: move.y, pass: move.pass});
+
+        const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
+
+        this.playerOne.socket.emit('showBoard', newBoard.currentState, move.pass);
       });
     }
     
@@ -118,33 +124,17 @@ class Game {
   getNextMoveFromAI(callback) {
 
     var tmpBoard = new Board(this.gameData.history, this.gameData.boardSize);
-
-    /*
-    var dummy = [];
-
-    for (var i = 0; i < this.gameData.boardSize; i++) {
-
-      var dummy2 = [];
-
-      for (var j = 0; j < this.gameData.boardSize; j++) {
-        dummy2.push(0);
-      }
-
-      dummy.push(dummy2);
-    }
-
-    dummy[0][0] = 2;
-    */
+    var aiBoard = tmpBoard.convertToInteger();
 
     var lastMove = this.gameData.history[this.gameData.history.length - 1];
 
     var body = {
       size: this.gameData.boardSize,
-      board: tmpBoard.currentState,
+      board: aiBoard,
       last: {
         x: lastMove.x,
         y: lastMove.y,
-        c: lastMove.colour === "White" ? 1 : 2,
+        c: lastMove.colour === "White" ? 2 : 1,
         pass: lastMove.pass
       }
     };

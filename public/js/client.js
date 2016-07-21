@@ -336,7 +336,7 @@ function renderPlayGame(game) {
     let x = Math.floor(hitX / wScale);
     let y = Math.floor(hitY / hScale);
 
-    socket.emit('playMove', x, y);
+    socket.emit('playMove', x, y, false);
   });
 }
 
@@ -420,9 +420,23 @@ socket.on('showMove', (colour, x, y, pass) => {
   }
 });
 
-socket.on('showBoard', board => {
+socket.on('showBoard', (board, colour, pass) => {
 
   renderBoardTokens(board);
+
+  if (selfUser.colour !== colour) {
+    if (pass === true) {
+      renderTurnText("Opponent passed");
+    } else if (!pass) {
+      renderTurnText("Your turn");
+    }
+  } else {
+    if (pass === true) {
+      renderTurnText("You passed");
+    } else if (!pass) {
+      renderTurnText("Opponents turn");
+    }
+  }
 });
 
 socket.on('playerJoined', opponent => {
