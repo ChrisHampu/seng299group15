@@ -30,7 +30,9 @@ class Board {
 
 	//build the board array
     for (var i = 0; i < this.history.length; i++) {
-		  this.playMove(this.history[i].x, this.history[i].y, this.history[i].colour)
+    	this.checkCaptures(this.history[i].x, this.history[i].y, this.history[i].colour);
+    	//this.checkLiberties(this.history[i].x, this.history[i].y, this.history[i].colour);
+		this.playMove(this.history[i].x, this.history[i].y, this.history[i].colour)
     }
   }
   
@@ -94,7 +96,7 @@ class Board {
 
     var captures = 0;
 
-     if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
+    if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
       const oppColour = inColour === "White" ? "Black" : "White";
 
       captures += this._checkCaptures(x-1, y, oppColour); 

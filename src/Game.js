@@ -73,11 +73,6 @@ class Game {
       canPlayMove = true;
     }
 
-    // Check actual move
-    if (!pass && !this.checkMove(user, x, y)) {
-      canPlayMove = false;
-    }
-
     return canPlayMove;
   }
 
@@ -92,15 +87,24 @@ class Game {
       return;
     }
 
+    let newState = null;
+
+    if (!pass) {
+      newState = this.performMove(user, x, y);
+    } else {
+      const oldBoard = new Board(this.gameData.history, this.gameData.boardSize);
+      newState = oldBoard.currentState;
+    }
+
     const newColour = this.gameData.gameType !== "Hotseat" ? user.colour : this.getNextMovingPlayerColour();
 
     this.gameData.history.push({colour: newColour, x, y, pass});
 
-    const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
+    //const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
 
     // Hot seat game play needs to alternate colours
     //this.playerOne.socket.emit('showMove', newColour, x, y, pass);
-    this.playerOne.socket.emit('showBoard', newBoard.currentState, newColour, pass);
+    this.playerOne.socket.emit('showBoard', newState, newColour, pass);
 
     if (this.gameData.gameType !== "Hotseat" && this.playerTwo.id !== "AI") {
       this.playerTwo.socket.emit('showMove', newColour, x, y, pass);
@@ -163,8 +167,10 @@ class Game {
   // Check actual board x/y coordinates + other logic
   // Verify there isn't already a piece there, etc
   //returns true for valid move, false otherwise
-  checkMove(user, x, y) {
+  performMove(user, x, y) {
     //if too far off the board
+
+    let moveValid = true;
     
   	if (x < 0 || x > this.gameData.boardSize || y < 0 || y > this.gameData.boardSize) {
   		return false;
@@ -175,7 +181,7 @@ class Game {
   	//if spot is taken
   	if (board.currentState[x][y] != 0) {
       console.log("spot is taken");
-  		return false;
+  		moveValid = false;
   	}
   	
     // This function doesn't exist?
@@ -186,7 +192,7 @@ class Game {
   	//if move is surrounded
   	if (!board.checkLiberties(x,y,this.getNextMovingPlayerColour() === "White" ? "Black" : "White")) {
       console.log("no liberties");
-  		return false;
+  		moveValid = false;
   	}
   	
   	let oldBoard = new Board(this.gameData.history.slice(0, this.gameData.history.length - 3), this.gameData.boardSize);
@@ -205,10 +211,20 @@ class Game {
 
     if (this.gameData.history.length > 2 && duplicated === true) {
       console.log("move duplicated");
-      return false;
+      moveValid = false;
     }
+
+    if (!moveValid) {
+      console.log("Returning old state");
+
+      oldBoard = new Board(this.gameData.history, this.gameData.boardSize);
+
+      return oldBoard.currentState;
+    }
+
+    board.currentState[x][y] = this.getNextMovingPlayerColour();
     
-    return true;
+    return board.currentState;
   }
   
 }
