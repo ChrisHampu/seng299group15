@@ -171,7 +171,6 @@ console.log("Running in " + (developmentMode ? "development" : "production") + "
 
 http.listen(port, () => console.log('listening on *:' + port));
 
-
 //when server closes, save all games
 process.on('SIGINT', function() {
 	console.log("storing all games");
@@ -179,50 +178,3 @@ process.on('SIGINT', function() {
 	
 	process.exit();
 });
-
-
-//-------------------- AI communication
-/*
-req = http.request(options, callback);
-
-var postData = {
-	"size" : size,
-	"board" : board,
-	"last" : lastMove
-}
-
-req.write (JSON.stringify (postData));
-
-req.end();
-*/
-
-			// var options = {
-			// host: 'roberts.seng.uvic.ca',
-			// path: '/ai/random',
-			// port: '30000',
-			// method: 'POST',
-			// headers : {'Content-Type': 'application/json'}
-	
-			// };
-		
-			// var callback = function(response){
-	
-			// var str = '';
-	
-			// response.on('data', function(chunk){
-				// str += chunk.toString();
-			// })
-		
-			// response.on('end', function(){
-				// console.log(str);
-				// console.log('no more data');
-			
-				// console.log ("returning string " + str);
-				// cb (JSON.parse(str));
-			
-			// })
-
-/* Chris' AI implementation (requires node-fetch package)
-
-
-*/

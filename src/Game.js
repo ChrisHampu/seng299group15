@@ -102,8 +102,6 @@ class Game {
     if (this.gameData.gameType !== "Hotseat" && this.playerTwo.id !== "AI") {
       this.playerTwo.socket.emit('showMove', newColour, x, y, pass);
     } else if (this.playerTwo.id === "AI") {
-      
-		  var tmpBoard = new Board(this.gameData.history);
 
       // If player made a valid move, now the AI needs to perform a move
       this.getNextMoveFromAI(move => {
@@ -119,6 +117,9 @@ class Game {
 
   getNextMoveFromAI(callback) {
 
+    var tmpBoard = new Board(this.gameData.history, this.gameData.boardSize);
+
+    /*
     var dummy = [];
 
     for (var i = 0; i < this.gameData.boardSize; i++) {
@@ -133,15 +134,18 @@ class Game {
     }
 
     dummy[0][0] = 2;
+    */
+
+    var lastMove = this.gameData.history[this.gameData.history.length - 1];
 
     var body = {
       size: this.gameData.boardSize,
-      board: dummy,
+      board: tmpBoard.currentState,
       last: {
-        x: 0,
-        y: 0,
-        c: 2,
-        pass: false
+        x: lastMove.x,
+        y: lastMove.y,
+        c: lastMove.colour === "White" ? 1 : 2,
+        pass: lastMove.pass
       }
     };
 
@@ -171,85 +175,50 @@ class Game {
   //returns true for valid move, false otherwise
   checkMove(user, x, y) {
     //if too far off the board
-    /*
-  	if (x > this.gameData.boardSize || y > this.gameData.boardSize) {
+    
+  	if (x < 0 || x > this.gameData.boardSize || y < 0 || y > this.gameData.boardSize) {
   		return false;
   	}
   	
-    let board = new Board(this.gameData.history);
+    let board = new Board(this.gameData.history, this.gameData.boardSize);
   	
   	//if spot is taken
   	if (board.currentState[x][y] != 0) {
+      console.log("spot is taken");
   		return false;
   	}
   	
-  	Board.playMoveLocal(board, x, y, user.colour);
+    // This function doesn't exist?
+  	//Board.playMoveLocal(board, x, y, user.colour);
   	
+    board.checkCaptures(x, y, this.getNextMovingPlayerColour() === "White" ? "Black" : "White");
+
   	//if move is surrounded
-  	if (!checkLiberties(board,x,y,user.colour)) {
+  	if (!board.checkLiberties(x,y,this.getNextMovingPlayerColour() === "White" ? "Black" : "White")) {
+      console.log("no liberties");
   		return false;
   	}
   	
-  	oldBoard = new Board(this.gameData.history.pop().pop())
+  	let oldBoard = new Board(this.gameData.history.slice(0, this.gameData.history.length - 3), this.gameData.boardSize);
   	
+    let duplicated = true;
+
   	//if oldBoard == newBoard, return false
   	//checking that move doesnt recreate past board state
-  	for (var i =0; i < board.length; i++) {
-  		for (var j =0; j < board[i].length; j++) {
-  			if (oldBoard[i][j] != board[i][j]) {
-  				return false;
+  	for (var i =0; i < this.gameData.boardSize; i++) {
+  		for (var j = 0; j < this.gameData.boardSize; j++) {
+  			if (oldBoard.currentState[i][j] != board.currentState[i][j]) {
+  				duplicated = false;
   			}
   		}
   	}
-    */
-	
+
+    if (this.gameData.history.length > 2 && duplicated === true) {
+      console.log("move duplicated");
+      return false;
+    }
+    
     return true;
-  }
-  
-  
-  //returns true for liberty, false otherwise
-  checkLiberties(inBoardState, x, y , inColour) {
-	//check top
-	if (y-1 >= 0) {
-		if (inBoardState[x][y-1] == 0) {
-			return true;
-		} else if (inBoardState[x][y-1] == inColour){
-			if (checkLiberties(inBoardState, x, y-1, inColour))
-				return true;
-		}
-	}
-	
-	//check right
-	if (x+1 < inBoardState.length) {
-		if (inBoardState[x+1][y] == 0) {
-			return true;
-		} else if (inBoardState[x+1][y] == inColour){
-			if (checkLiberties(inBoardState, x+1, y, inColour))
-				return true;
-		}
-	}
-	
-	//check left
-	if (x-1 >= 0) {
-		if (inBoardState[x-1][y] == 0) {
-			return true;
-		} else if (inBoardState[x-1][y] == inColour){
-			if (checkLiberties(inBoardState, x-1, y, inColour))
-				return true;
-		}
-	}
-	
-	//check bottom
-	if (y+1 < inBoardState.length) {
-		if (inBoardState[x][y+1] == 0) {
-			return true;
-		} else if (inBoardState[x][y+1] == inColour){
-			if (checkLiberties(inBoardState, x, y+1, inColour))
-				return true;
-		}
-	}
-	
-	return false;
   }
   
 }
