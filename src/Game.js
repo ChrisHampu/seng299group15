@@ -275,10 +275,12 @@ class Game {
 
 
     			//check if the territory belongs to the same colour
-  			} else if (!this.checkTerritoryRecursive(otherBoardState, x, y, otherColour)) {
+  			} else if (this.checkTerritoryRecursive(otherBoardState, x, y, otherColour)) {
   				score++;
   			}
+         console.log("end loop 2");
   		}
+      console.log("end loop 1");
 	  }
     return score;
   }
@@ -286,31 +288,50 @@ class Game {
   //checks that a single point does not connect to any pieces from inColour
   //effectively checking territory for the opposite colour
   //returns true if the colour is present, false otherwise
+  //RETURNS TRUE IF COMPLETELY BOUNDED BY INCOLOUR AND NO OTHERS.
   checkTerritoryRecursive(inBoardState, x, y, inColour) {
   
   //console.log(inBoardState);
   
   console.log("at point", x, ",", y);
+  console.log("calculating ", inColour);
  	
     if (x < 0 || x > this.gameData.boardSize - 1 || y < 0 || y > this.gameData.boardSize - 1) {
       console.log("out of board", x, y);
-      return false;
+      return true;
     } 
-
-    inBoardState[x][y] = "Checked";
 
    	//already been checked
    	if (inBoardState[x][y] == "Checked") {
       console.log("already checked");
-   		return false;
+   		return true;
     }
   	
   	//found the colour
-  	if (inBoardState[x][y] == inColour) {
-      console.log("Score plus 1");
-  		return true;
+  	if (inBoardState[x][y] != inColour) {
+      //console.log("Score plus 1");
+      //one edge is correct colour.
+      console.log("found op edge");
+  		return false;
   	}
+    
+    if (inBoardState[x][y] == inColour){
+      console.log("found own edge");
+      return true;
+    }
+    
+    inBoardState[x][y] = "Checked";
 
+    console.log("-----right before-----");
+    if (inBoardState[x][y] == 0) {
+      if (this.checkTerritoryRecursive(inBoardState, x, y-1, inColour) && this.checkTerritoryRecursive(inBoardState, x-1, y, inColour) 
+      && this.checkTerritoryRecursive(inBoardState, x+1, y, inColour) && this.checkTerritoryRecursive(inBoardState, x, y+1, inColour))
+      {
+        return true;
+      }
+    }
+    
+    /*
     console.log ("passed 1");
     if (y-1 >= 0 && this.checkTerritoryRecursive(inBoardState, x, y-1, inColour)) {
       console.log("y-1", y-1);
@@ -336,7 +357,7 @@ class Game {
         console.log("y+1", y+1);
   		return true;
   	}
-  	console.log ("passed 5");
+  	console.log ("passed 5"); */
     
   	//could not find the colour
   	inBoardState[x][y] = "Checked";
