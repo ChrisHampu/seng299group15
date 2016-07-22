@@ -30,6 +30,10 @@ class Server {
 
       user.socket.emit('failJoinGame', "Unable to find a game with that ID");
 
+    } else if (game.gameData.gameOver) {
+
+      user.socket.emit("failJoinGame", "Game has ended");
+
     } else {
 
       user.activeGame = gameID;
@@ -70,24 +74,38 @@ class Server {
   replayMove(user, index) {
 
     if (!user.activeReplay) {
-      console.log("No replay");
       return;
     }
 
     let game = this.findGameById(user.activeReplay);
 
     if (!game) {
-      console.log("stale replay");
       return;
     }
 
     let gameData = game.gameData;
 
-    let _index = index < 0 ? 0 : (index > gameData.history.length ? gameData.history.length  : index);
+    let maxIndex = gameData.gameOver && gameData.history.length > 2 ? gameData.history.length - 2 : gameData.history.length;
+
+    let _index = index < 0 ? 0 : (index > maxIndex ? maxIndex  : index);
 
     let board = new Board(gameData.history.slice(0, _index), gameData.boardSize);
 
-    user.socket.emit('showReplayState', board.currentState, _index);
+    let blackPoints = 0;
+    let whitePoints = 0;
+
+    if (game.gameData.gameOver && maxIndex === _index) {
+      console.log("setting points");
+      blackPoints = game.countPoints(board, "Black");
+      whitePoints = game.countPoints(board, "White");
+    }
+
+    console.log(gameData);
+    console.log(_index);
+    console.log(gameData.history.length);
+    console.log(game.gameData.gameOver && maxIndex === _index);
+
+    user.socket.emit('showReplayState', board.currentState, _index, game.gameData.gameOver && maxIndex === _index, blackPoints, whitePoints);
   }
 }
 

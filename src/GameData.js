@@ -20,6 +20,7 @@ class GameData {
     this.history = inHistory || [];
     this.boardSize = inBoardSize || 9; //Added due to recommendation from Milestone 3
     this.gameType = inGameType || 'Hotseat';
+    this.gameOver = false;
   }
 }
 

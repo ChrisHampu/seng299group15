@@ -571,9 +571,22 @@ socket.on('showReplay', game => {
   document.getElementById('game_title').innerHTML = `Watching replay ${game.gameID.slice(0, 8)}`;
 });
 
-socket.on('showReplayState', (board, index) => {
+socket.on('showReplayState', (board, index, gameOver, blackScore, whiteScore) => {
 
   replayIndex = index;
 
   renderBoardTokens(board);
+
+  console.log(gameOver, blackScore, whiteScore);
+
+  if (gameOver) {
+    document.getElementById('game_over').innerHTML = `Game over! Black score: ${blackScore}  White score: ${whiteScore}`;
+  } else {
+    document.getElementById('game_over').innerHTML = "";
+  }
+});
+
+socket.on('gameOver', (message) => {
+
+  document.getElementById('game_over').innerHTML = message;
 });

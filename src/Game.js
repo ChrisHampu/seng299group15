@@ -78,6 +78,10 @@ class Game {
 
   playMove(user, x, y, pass) {
 
+    if (this.getIsGameOver()) {
+      return;
+    }
+
     // Make sure there is a second player
     if (!this.playerTwo) {
       return;
@@ -101,6 +105,8 @@ class Game {
       newState = this.performMove(user, x, y, pass);  
     } else {
 	
+      this.gameData.history.push({colour: this.getNextMovingPlayerColour(), x, y, pass});
+
       // If there's a pass, simply send the client the current board state
       const oldBoard = new Board(this.gameData.history, this.gameData.boardSize);
       newState = oldBoard.currentState;
@@ -111,6 +117,38 @@ class Game {
     // Send client new board state, colour of user moving, and the pass state
     this.playerOne.socket.emit('showBoard', newState, newColour, pass);
 
+    // Check for consecutive passes
+    if (this.getIsGameOver()) {
+
+      this.gameData.gameOver = true;
+
+      const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
+
+      let blackScore = this.countPoints(newBoard.currentState, "Black");
+      let whiteScore = this.countPoints(newBoard.currentState, "White");
+
+      let message = "";
+
+      if (this.gameData.gameType === "Hotseat") {
+
+        message = `AI passed  Black score: ${blackScore}  White score: ${whiteScore}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`;
+      } else {
+
+        let user1Score = this.playerOne.colour === "Black" ? blackScore : whiteScore;
+        let user2Score = this.playerTwo.colour === "Black" ? blackScore : whiteScore;
+
+        message = `Game over!  ${this.playerOne.fullName} (${this.playerOne.colour}) scored: ${user1Score}  ${this.playerTwo.fullName} (${this.playerTwo.colour}) scored: ${user2Score}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`;
+      }
+
+      this.playerOne.socket.emit('gameOver', message);
+
+      if (this.gameData.gameType === "Network") {
+
+        this.playerTwo.socket.emit('showBoard', newState, newColour, pass);
+        this.playerTwo.socket.emit('gameOver', message);
+      }
+    }
+
     // If this is a network game, send move the player 2
     if (this.gameData.gameType === "Network") {
       this.playerTwo.socket.emit('showBoard', newState, newColour, pass);
@@ -120,14 +158,54 @@ class Game {
 
       // If player made a valid move, now the AI needs to perform a move
       this.getNextMoveFromAI(move => {
-        
-        this.gameData.history.push({colour: move.c === 1 ? "Black" : "White", x: move.x, y: move.y, pass: move.pass});
 
-        const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
+        if (move.pass) {
+          this.gameData.history.push({colour: move.c === 1 ? "Black" : "White", x: 0, y: 0, pass: move.pass});
 
-        this.playerOne.socket.emit('showBoard', newBoard.currentState, move.pass);
+          const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
+
+          let blackScore = this.countPoints(newBoard.currentState, "Black");
+          let whiteScore = this.countPoints(newBoard.currentState, "White");
+
+          let userScore = move.c === 1 ? whiteScore : blackScore;
+          let aiScore = move.c === 1 ? blackScore : whiteScore;
+
+          this.playerOne.socket.emit('gameOver', `Game over! Your score: ${userScore}  AI score: ${aiScore}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`);
+        }
+        else {
+          this.gameData.history.push({colour: move.c === 1 ? "Black" : "White", x: move.x, y: move.y, pass: move.pass});
+
+          const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
+
+          this.playerOne.socket.emit('showBoard', newBoard.currentState, move.pass);
+        }
       });
     }
+  }
+
+  getIsGameOver() {
+
+    if (this.gameData.gameOver === true) {
+      return true;
+    }
+
+    if (this.gameData.history.length > 2) {
+
+      let history = this.gameData.history.slice(this.gameData.history.length - 2);
+
+      var allPassed = true;
+
+      for (var i = 0; i < history.length; i++) {
+
+        if (history[i].pass === false) {
+          allPassed = false;
+        }
+      }
+
+      return allPassed;
+    }
+
+    return false;
   }
 
   getNextMoveFromAI(callback) {
@@ -135,7 +213,11 @@ class Game {
     var tmpBoard = new Board(this.gameData.history, this.gameData.boardSize);
     var aiBoard = tmpBoard.convertToInteger();
 
-    var lastMove = this.gameData.history[this.gameData.history.length - 1];
+    var lastMove = this.gameData.history.length ? this.gameData.history[this.gameData.history.length - 1] : {
+      c: 0,
+      x: 0,
+      y: 0
+    };
 
     var body = {
       size: this.gameData.boardSize,
