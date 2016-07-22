@@ -8,7 +8,6 @@ var Server = new (require('./src/Server'));
 var express = require('express')
 var app = express();
 var http = require('http').Server(app);
-var database = new (require('./src/Database'));
 
 var io = require('socket.io')(http);
 var ios = require('socket.io-express-session');
@@ -17,12 +16,16 @@ var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 // Configuration
+const mongoport = process.env.MONGO_PORT || 27017;
+const weburl = process.env.WEB_URL || 'http://localhost';
 const port = process.env.PORT || 3000;
 const developmentMode = process.env.NODE_ENV !== 'production';
 const googleClientID = process.env.GOOGLE_CLIENT_ID || "1042858849145-hqg47cutf9jdgb7u1c373q433bhsui8f.apps.googleusercontent.com";
 const googleSecret = process.env.GOOGLE_SECRET || "Ri-TWGe7QTl4qEBRmnvg0M6z";
-const googleCallback = process.env.GOOGLE_CALLBACK || `http://localhost:${port}/auth/callback`;
+const googleCallback = process.env.GOOGLE_CALLBACK || `${weburl}:${port}/auth/callback`;
 const sessionSecret = process.env.SESSION_SECRET || "Seng299Group15";
+
+var database = new (require('./src/Database'))(mongoport);
 
 var session = require('express-session')({ secret: 'sessionSecret', resave: true, saveUninitialized: true });
 
@@ -179,7 +182,7 @@ if (developmentMode) {
 
 console.log("Running in " + (developmentMode ? "development" : "production") + " mode");
 
-http.listen(port, () => console.log('listening on *:' + port));
+http.listen(port, () => console.log(`listening on ${weburl}:${port}`));
 
 //when server closes, save all games
 process.on('SIGINT', function() {
