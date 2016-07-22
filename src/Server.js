@@ -63,8 +63,6 @@ class Server {
 
       user.activeReplay = gameID;
 
-      console.log("found replay");
-
       user.socket.emit('showReplay', game.gameData);
     }
   }
@@ -88,9 +86,6 @@ class Server {
     let _index = index < 0 ? 0 : (index > gameData.history.length ? gameData.history.length  : index);
 
     let board = new Board(gameData.history.slice(0, _index), gameData.boardSize);
-
-    console.log("replay index", _index);
-    console.log("Replay history", gameData.history.slice(0, _index));
 
     user.socket.emit('showReplayState', board.currentState, _index);
   }
