@@ -5,33 +5,34 @@ const mongoClient = mongodb.MongoClient;
 
 class Database {
 
-  constructor () { 
+  constructor (port) {
 
     this.gameCache = [];
-    
-	this.collections = new Map();
-	try {
-		mongoClient.connect("mongodb://localhost:27017", (err, db) => {
-		
-			this.database = db;
-		
-			if(err) {
-				console.log(err);
-				//process.exit();
-			} else {
-			
-				this.getCollection(db, "users", col => {
-					this.collections.set("users", col);
-				});
-				
-				this.getCollection(db, "games", col => {
-					this.collections.set("games", col);
-				});
-			}
-		});
-	} catch(err) {
-	
-	}
+
+    this.collections = new Map();
+
+    try {
+      mongoClient.connect(`mongodb://localhost:${port}`, (err, db) => {
+  		
+  			this.database = db;
+  		
+  			if(err) {
+  				console.log(err);
+  				//process.exit();
+  			} else {
+  			
+  				this.getCollection(db, "users", col => {
+  					this.collections.set("users", col);
+  				});
+  				
+  				this.getCollection(db, "games", col => {
+  					this.collections.set("games", col);
+  				});
+  			}
+  		});
+  	} catch(err) {
+  	
+  	}
   }
   
 	getCollection(db, name, cb) {
@@ -49,29 +50,6 @@ class Database {
 			}
 		});
 	}
-  /*
-      function connect(callback) {
-        
-        var that = this; 
-
-        MongoClient.connect(
-            "mongodb://" + this._host + ":" + this._port + "/" + this._dbname,
-            function (err, db) {
-
-                if (err) {
-                    console.log("ERROR: Could not connect to database.");
-                    that._db = null;
-                    callback(err);
-                } else {
-                    console.log("INFO: Connected to database.");
-                    that._db = db;
-                    callback(null);
-                }
-
-            }
-        );
-    }
-	*/
   
 	addToCache(game) {
 	
