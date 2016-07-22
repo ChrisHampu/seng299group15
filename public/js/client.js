@@ -5,6 +5,7 @@ let activeGame = undefined;
 let boardState = undefined;
 let selfUser = undefined;
 let opponentUser = undefined;
+let replayIndex = 0;
 
 // Utility functions to make up for not having jQuery
 const $ = selector => document.querySelectorAll(selector);
@@ -104,6 +105,11 @@ function renderCreateGame() {
     renderJoinGame();
   });
 
+  on("#renderPlayReplayButton", "click", () => {
+    
+    renderPlayReplayRequest();
+  });
+
   on("#createGameButton", "click", () => {
 
     console.log("creategame");
@@ -153,15 +159,76 @@ function renderJoinGame() {
     renderCreateGame();
   });
 
+  on("#renderPlayReplayButton", "click", () => {
+    
+    renderPlayReplayRequest();
+  });
+
   on("#joinGame", "click", () => {
 
     console.log("joingame called");
 
     const id = document.getElementById("game_id_input").value;
-    //var GameID = 123;
-    //var UserID = 1;
+
     socket.emit('joinGame', id);
   });
+}
+
+function renderPlayReplayRequest() {
+  const content = loadContent("#replayRequestTemplate");
+
+  renderToBody(content);
+
+  const headerContent = loadContent("#playReplayPageMenu");
+
+  renderToHeaderRight(headerContent);
+
+  on("#renderCreateGameButton", "click", () => {
+    
+    renderCreateGame();
+  });
+
+  on("#renderJoinGameButton", "click", () => {
+
+    renderJoinGame();
+  });
+
+  on("#requestReplay", "click", () => {
+
+    const id = document.getElementById("replay_id_input").value;
+
+    socket.emit('requestReplay', id);
+  });
+
+  
+}
+
+function renderPlayReplay(game) {
+
+  const content = loadContent("#replayPlayTemplate");
+
+  renderToBody(content);
+
+  const headerContent = loadContent("#leaveReplayPageMenu");
+
+  renderToHeaderRight(headerContent);
+
+  on("#leaveReplayButton", "click", () => {
+
+    renderPlayReplayRequest();
+  });
+
+  on("#replayPreviousButton", "click", () => {
+
+    socket.emit('replayMove', --replayIndex);
+  });
+
+  on("#replayNextButton", "click", () => {
+
+    socket.emit('replayMove', ++replayIndex);
+  });
+
+  renderGameBoard(game);
 }
 
 function renderUserInfo(user) {
@@ -219,7 +286,7 @@ function renderPlayGame(game) {
 
     title = "Hotseat Go";
 
-    content.getElementById("game_turn").innerHTML = "Black piece's turn";
+    content.getElementById("game_turn").innerHTML = `${game.playerOne.colour}s move`;
   }
 
   content.getElementById("game_title").innerHTML = title;
@@ -237,6 +304,59 @@ function renderPlayGame(game) {
 
     renderCreateGame();
   });
+
+  renderGameBoard(game);
+
+  $("#passMoveButton")[0].addEventListener('click', ev => {
+
+    socket.emit('playMove', 0, 0, true);
+  });
+
+  $("#game_board")[0].addEventListener('click', (ev) => {    
+
+    let hitX = ev.offsetX;
+    let hitY = ev.offsetY;
+
+    if (ev.target.nodeName !== "svg") {
+
+      // Magic numbers, nothing to see here
+      //let multi = game.boardSize === 9 ? 0.98 : (game.boardSize === 13 ? 1.25 : 1.75);
+
+      //hitX -= ((ev.offsetX * multi) / boardHeight) * wScale;
+      //hitY -= ((ev.offsetY * multi) / boardHeight) * hScale;
+    }
+
+    const findClosest = (goal, list) => list.reduce(function (prev, curr) {
+      return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+    });
+
+    let xHits = [];
+    let startX = activeGame.wScale / 2;
+
+    for (var i = 0; i <= game.boardSize; i++) {
+      xHits.push(startX);
+      startX += activeGame.wScale;
+    }
+
+    let yHits = [];
+    let startY = activeGame.hScale / 2;
+
+    for (var i = 0; i <= game.boardSize; i++) {
+      yHits.push(startY);
+      startY += activeGame.hScale;
+    }
+
+    hitX = findClosest(hitX, xHits);
+    hitY = findClosest(hitY, yHits);
+
+    let x = Math.floor(hitX / activeGame.wScale);
+    let y = Math.floor(hitY / activeGame.hScale);
+
+    socket.emit('playMove', x, y, false);
+  });
+}
+
+function renderGameBoard(game) {
 
   const gameContainer = $("#game_container")[0];
   const gameBoard = $("#game_board")[0];
@@ -290,54 +410,6 @@ function renderPlayGame(game) {
     circlePadding,
     gameBoard
   };
-
-  $("#passMoveButton")[0].addEventListener('click', ev => {
-
-    socket.emit('playMove', 0, 0, true);
-  });
-
-  $("#game_board")[0].addEventListener('click', (ev) => {    
-
-    let hitX = ev.offsetX;
-    let hitY = ev.offsetY;
-
-    if (ev.target.nodeName !== "svg") {
-
-      // Magic numbers, nothing to see here
-      //let multi = game.boardSize === 9 ? 0.98 : (game.boardSize === 13 ? 1.25 : 1.75);
-
-      //hitX -= ((ev.offsetX * multi) / boardHeight) * wScale;
-      //hitY -= ((ev.offsetY * multi) / boardHeight) * hScale;
-    }
-
-    const findClosest = (goal, list) => list.reduce(function (prev, curr) {
-      return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
-    });
-
-    let xHits = [];
-    let startX = wScale / 2;
-
-    for (var i = 0; i <= game.boardSize; i++) {
-      xHits.push(startX);
-      startX += wScale;
-    }
-
-    let yHits = [];
-    let startY = hScale / 2;
-
-    for (var i = 0; i <= game.boardSize; i++) {
-      yHits.push(startY);
-      startY += hScale;
-    }
-
-    hitX = findClosest(hitX, xHits);
-    hitY = findClosest(hitY, yHits);
-
-    let x = Math.floor(hitX / wScale);
-    let y = Math.floor(hitY / hScale);
-
-    socket.emit('playMove', x, y, false);
-  });
 }
 
 function renderBoardTokens(board) {
@@ -424,17 +496,29 @@ socket.on('showBoard', (board, colour, pass) => {
 
   renderBoardTokens(board);
 
-  if (selfUser.colour !== colour) {
+  console.log(activeGame);
+
+  if (activeGame.game.gameType === "Hotseat") {
+
     if (pass === true) {
-      renderTurnText("Opponent passed");
-    } else if (!pass) {
-      renderTurnText("Your turn");
+      renderTurnText(`${colour} passed`);
+    } else {
+      renderTurnText(`${colour}s move`);
     }
   } else {
-    if (pass === true) {
-      renderTurnText("You passed");
-    } else if (!pass) {
-      renderTurnText("Opponents turn");
+    if (selfUser.colour !== colour) {
+      if (pass === true) {
+        renderTurnText("Opponent passed");
+      } else if (!pass) {
+        renderTurnText("Your turn");
+      }
+    } else {
+
+      if (pass === true) {
+        renderTurnText("You passed");
+      } else if (!pass) {
+        renderTurnText("Opponents turn");
+      }
     }
   }
 });
@@ -473,4 +557,23 @@ socket.on('joinGame', (game, self, opponent) => {
   } else {
     renderTurnText("Opponents turn");
   }
+});
+
+socket.on('failRequestReplay', msg => {
+
+  document.getElementById('replay_game_fail').innerHTML = msg;
+});
+
+socket.on('showReplay', game => {
+
+  renderPlayReplay(game);
+
+  document.getElementById('game_title').innerHTML = `Watching replay ${game.gameID.slice(0, 8)}`;
+});
+
+socket.on('showReplayState', (board, index) => {
+
+  replayIndex = index;
+
+  renderBoardTokens(board);
 });
