@@ -152,6 +152,16 @@ io.on('connection', socket => {
   		Server.playMove(user, x, y, pass);
   	});
 
+  	socket.on('requestReplay', gameID => {
+
+  		Server.requestReplay(user, gameID);
+  	});
+
+  	socket.on('replayMove', index => {
+
+  		Server.replayMove(user, index);
+  	});
+
   } else {
 		console.log("Unauthenticated user connected");
 	}

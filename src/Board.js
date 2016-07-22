@@ -157,8 +157,6 @@ class Board {
       console.log(x, y, inColour, "outside board");
       return false;
     }
-    
-
 
     //check the current spot.
     if (this.currentState[x][y] === 0) {
@@ -180,10 +178,10 @@ class Board {
     testBoard[x][y] = 1;
     
     // If each of the 4 directions have no liberty, then the stone can't be placed there
-    let hasLiberty = this._checkLiberties(testBoard, x-1, y, inColour) === true || 
-      this._checkLiberties(testBoard, x, y-1, inColour) === true ||
-      this._checkLiberties(testBoard, x+1, y, inColour) === true ||
-      this._checkLiberties(testBoard, x, y+1, inColour) === true;
+    let hasLiberty = this._checkLiberties(testBoard, x-1, y, inColour) === false && 
+      this._checkLiberties(testBoard, x, y-1, inColour) === false &&
+      this._checkLiberties(testBoard, x+1, y, inColour) === false &&
+      this._checkLiberties(testBoard, x, y+1, inColour) === false;
 
       console.log(x, y, inColour, "has liberty", hasLiberty);
 

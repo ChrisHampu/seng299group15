@@ -34,15 +34,26 @@
     </template>
 
     <template id="joinGamePageMenu">
-        <li><button class="success button" id="renderCreateGameButton">Create New Game</button></li>  
+        <li><button class="success button" id="renderCreateGameButton">Create New Game</button></li>
+        <li><button class="success button" id="renderPlayReplayButton">Play Replay</button></li>  
     </template>
 
     <template id="createGamePageMenu">
         <li><button class="success button" id="renderJoinGameButton">Join Existing Game</button></li>
+        <li><button class="success button" id="renderPlayReplayButton">Play Replay</button></li>  
+    </template>
+
+    <template id="playReplayPageMenu">
+        <li><button class="success button" id="renderCreateGameButton">Create New Game</button></li>
+        <li><button class="success button" id="renderJoinGameButton">Join Existing Game</button></li> 
     </template>
 
     <template id="playGamePageMenu">
         <li><button class="alert button" id="leaveGameButton">Leave Game</button></li>
+    </template>
+
+    <template id="leaveReplayPageMenu">
+        <li><button class="alert button" id="leaveReplayButton">Exit Replay</button></li>
     </template>
 
     <template id="joinGameTemplate">
@@ -55,6 +66,19 @@
         <div class="large-3 columns"><!-- ... --></div>
         <div class="large-12 columns">
             <h5 align="center" id="join_game_fail"></h5>
+        </div>
+    </template>
+
+    <template id="replayRequestTemplate">
+        <div class="large-3 columns"><!-- ... --></div>
+        <div class="large-6 columns"><!-- ... -->
+            <h2 class="gogame">Enter replay ID</h2>
+            <input type="search" placeholder="Enter replay ID" class="gogame" id="replay_id_input">
+            <button class="large hollow button" id="requestReplay">Play Replay</button>
+        </div>
+        <div class="large-3 columns"><!-- ... --></div>
+        <div class="large-12 columns">
+            <h5 align="center" id="replay_game_fail"></h5>
         </div>
     </template>
 
@@ -141,6 +165,35 @@
         <div class="row" id="wrapper">
             <div class="large-6 columns large-offset-3 button_container" align="center">
                 <button class="button" id="passMoveButton">Pass Move</button>
+            </div>
+        </div>
+    </template>
+
+    <template id="replayPlayTemplate">
+        <h1 align="center" id="game_title"></h1>
+        <h5 align="center" id="game_id"></h5>
+        <h5 align="center" id="game_turn"></h5>
+        <div id="game_container">
+            <svg id="game_board">
+              <defs>
+                <radialGradient id="whiteGrad" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                    <stop offset="0%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
+                    <stop offset="40%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#dddddd;stop-opacity:1" />
+                </radialGradient>
+                <radialGradient id="blackGrad" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                  <stop offset="0%" style="stop-color:#808080;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+                </radialGradient>
+              </defs>
+              <g id="game_rect" />
+              <g id="game_tokens" />
+            </svg>
+        </div>
+        <div class="row" id="wrapper">
+            <div class="large-6 columns large-offset-3 button_container" align="center">
+                <button class="button" id="replayPreviousButton">Previous Move</button>
+                <button class="button" id="replayNextButton">Next Move</button>
             </div>
         </div>
     </template>
