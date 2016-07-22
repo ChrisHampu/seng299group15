@@ -106,7 +106,7 @@ class Game {
       newState = oldBoard.currentState;
     }
 
-    console.log("Points for", newColour, this.countPoints(newState, newColour));
+    //console.log("Points for", newColour, this.countPoints(newState, newColour));
 
     // Send client new board state, colour of user moving, and the pass state
     this.playerOne.socket.emit('showBoard', newState, newColour, pass);

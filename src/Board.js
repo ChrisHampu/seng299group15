@@ -73,7 +73,7 @@ class Board {
 
     var captures = 0;
 
-    if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
+    if (x >= 0 && x < this.size && y >= 0 && y < this.size) {
       const oppColour = inColour === "White" ? "Black" : "White";
 
       captures += this._checkCaptures(x-1, y, oppColour); 
@@ -88,7 +88,7 @@ class Board {
   //inColour is the colour of the pieces to be taken.
   _checkCaptures(x, y, inColour) {
   
-    if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1) {
+    if (x >= 0 && x < this.size && y >= 0 && y < this.size) {
 
       //if this is true there are liberties.
       if (this.checkLiberties(x, y, inColour) === false) {
@@ -104,7 +104,7 @@ class Board {
 
     var captures = 0;
 
-    if (x >= 0 && x < this.size - 1 && y >= 0 && y < this.size - 1 && this.currentState[x][y] === inColour) {
+    if (x >= 0 && x < this.size && y >= 0 && y < this.size && this.currentState[x][y] === inColour) {
 
       this.currentState[x][y] = 0;
       captures++;
