@@ -560,6 +560,9 @@ socket.on('showReplay', game => {
 
   renderPlayReplay(game);
 
+  // Reset index on new replays
+  replayIndex = 0;
+
   document.getElementById('game_title').innerHTML = `Watching replay ${game.gameID.slice(0, 8)}`;
 });
 
