@@ -53,3 +53,7 @@ body {
   background: none !important;
   vertical-align: middle !important;
 }
+
+#game_title {
+  margin-bottom: 0 !important;
+}

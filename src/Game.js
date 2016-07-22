@@ -131,7 +131,7 @@ class Game {
 
       if (this.gameData.gameType === "Hotseat") {
 
-        message = `AI passed  Black score: ${blackScore}  White score: ${whiteScore}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`;
+        message = `Both passed  Black score: ${blackScore}  White score: ${whiteScore}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`;
       } else {
 
         let user1Score = this.playerOne.colour === "Black" ? blackScore : whiteScore;

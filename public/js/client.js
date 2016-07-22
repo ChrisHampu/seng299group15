@@ -112,8 +112,6 @@ function renderCreateGame() {
 
   on("#createGameButton", "click", () => {
 
-    console.log("creategame");
-
     var typeRadios = document.getElementsByName('form_mode');
 
     let gameType = "AI";
@@ -165,8 +163,6 @@ function renderJoinGame() {
   });
 
   on("#joinGame", "click", () => {
-
-    console.log("joingame called");
 
     const id = document.getElementById("game_id_input").value;
 
@@ -446,8 +442,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 socket.on('gameCreated', game => {
 
-  console.log(game);
-
   renderPlayGame(game);
 
   selfUser = game.playerOne;
@@ -460,7 +454,7 @@ socket.on('failJoinGame', msg => {
 });
 
 socket.on('connected', user => {
-  console.log(user);
+
   renderUserInfo(user);
 });
 
@@ -495,8 +489,6 @@ socket.on('showMove', (colour, x, y, pass) => {
 socket.on('showBoard', (board, colour, pass) => {
 
   renderBoardTokens(board);
-
-  console.log(activeGame);
 
   if (activeGame.game.gameType === "Hotseat") {
 
@@ -576,8 +568,6 @@ socket.on('showReplayState', (board, index, gameOver, blackScore, whiteScore) =>
   replayIndex = index;
 
   renderBoardTokens(board);
-
-  console.log(gameOver, blackScore, whiteScore);
 
   if (gameOver) {
     document.getElementById('game_over').innerHTML = `Game over! Black score: ${blackScore}  White score: ${whiteScore}`;

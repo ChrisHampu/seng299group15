@@ -95,15 +95,9 @@ class Server {
     let whitePoints = 0;
 
     if (game.gameData.gameOver && maxIndex === _index) {
-      console.log("setting points");
-      blackPoints = game.countPoints(board, "Black");
-      whitePoints = game.countPoints(board, "White");
+      blackPoints = game.countPoints(board.currentState, "Black");
+      whitePoints = game.countPoints(board.currentState, "White");
     }
-
-    console.log(gameData);
-    console.log(_index);
-    console.log(gameData.history.length);
-    console.log(game.gameData.gameOver && maxIndex === _index);
 
     user.socket.emit('showReplayState', board.currentState, _index, game.gameData.gameOver && maxIndex === _index, blackPoints, whitePoints);
   }
