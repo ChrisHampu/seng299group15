@@ -102,7 +102,14 @@ class Game {
 	
       // Perform move will do the move and return a new board state
       // If the move is invalid, it'll return the current board state
-      newState = this.performMove(user, x, y, pass);  
+      const newMove = this.performMove(user, x, y, pass);  
+
+      newState = newMove.state;
+
+      if (newMove.error) {
+        console.log(newMove.error);
+        user.socket.emit('showError', newMove.error);
+      }
     } else {
 	
       this.gameData.history.push({colour: this.getNextMovingPlayerColour(), x, y, pass});
@@ -261,6 +268,7 @@ class Game {
   		return false;
   	}
   	
+    let error = null;
     let duplicated = true;
     let moveValid = true;
     const newColour = this.gameData.gameType !== "Hotseat" ? user.colour : this.getNextMovingPlayerColour();
@@ -270,7 +278,7 @@ class Game {
   	// Use it to check that the spot isn't taken
   	if (board.currentState[x][y] != 0) {
       console.log("spot is taken");
-  		return board.currentState;
+  		return { state: board.currentState, error: "Spot is occupied by another piece" };
   	}
 	
     // Push new move and construct new board state; army capture will be calculated
@@ -281,6 +289,7 @@ class Game {
   	if (!board.checkLiberties(x,y,this.getNextMovingPlayerColour() === "White" ? "Black" : "White")) {
       console.log("no liberties");
   		moveValid = false;
+      error = "Move would result in suicide";
   	}
   	
     // Construct board state back 3 moves and use it to check for duplicate moves
@@ -299,6 +308,7 @@ class Game {
     if (this.gameData.history.length > 2 && duplicated === true) {
       console.log("move duplicated");
       moveValid = false;
+      error = "Move would result in Koh";
     }
 
     // If move is invalid, restore previous board history
@@ -309,7 +319,7 @@ class Game {
     }
 
     // Return a new board state
-    return new Board(this.gameData.history, this.gameData.boardSize).currentState;
+    return { state: new Board(this.gameData.history, this.gameData.boardSize).currentState, error };
   }
   
   //inColour can be either White or Black

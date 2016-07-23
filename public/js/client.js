@@ -434,6 +434,46 @@ function renderBoardTokens(board) {
   }
 }
 
+var snackbarsOpen = 0;
+
+function showSnackbarMessage(message) {
+
+  const content = loadContent("#snackbarTemplate");
+
+  const selector =  content.querySelectorAll(".snackbar_content")[0];
+  
+  selector.innerHTML = message;
+
+  $("#snackbar_container")[0].appendChild(content);
+
+  snackbarsOpen++;
+
+  setTimeout(() => {
+
+    $("#snackbar_container")[0].classList.add('open');
+
+    selector.classList.toggle("open");
+  }, 100);
+
+  setTimeout(() => {
+
+    snackbarsOpen--;
+    
+    if (snackbarsOpen <= 0) {
+      $("#snackbar_container")[0].classList.remove('open'); 
+    }    
+
+    selector.classList.toggle("open");
+  }, 2500);
+
+  setTimeout(() => {
+
+    // delete node
+    $("#snackbar_container")[0].removeChild(selector.parentNode);
+  }, 2900); 
+}
+
+
  // Application entry point
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -582,4 +622,9 @@ socket.on('showReplayState', (board, index, gameOver, blackScore, whiteScore) =>
 socket.on('gameOver', (message) => {
 
   document.getElementById('game_over').innerHTML = message;
+});
+
+socket.on('showError', error => {
+
+  showSnackbarMessage(error);
 });
