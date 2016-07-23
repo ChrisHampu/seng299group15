@@ -26,6 +26,7 @@ class Game {
         colour: this.getOppositeColour(inDesiredColour),
         activeGame: gameID
       };
+
     } else if(inGameType === "Hotseat") {
 
       this.playerTwo = {
@@ -37,6 +38,11 @@ class Game {
 
     // Need to remove the socket before it gets serialized to the game data
     this.gameData = new GameData(gameID, Object.assign({}, inPlayerOne, { socket: undefined }), this.playerTwo, [], parseInt(inBoardSize), inGameType);
+  
+    // AI needs to go first in this case, so get its first move
+    if (inGameType === "AI" && this.playerOne.colour === "White") {
+      this.doAIMove();
+    }
   }
   
   getOppositeColour(colour) {
@@ -164,29 +170,7 @@ class Game {
     } else if (this.playerTwo.id === "AI") {
 
       // If player made a valid move, now the AI needs to perform a move
-      this.getNextMoveFromAI(move => {
-
-        if (move.pass) {
-          this.gameData.history.push({colour: move.c === 1 ? "Black" : "White", x: 0, y: 0, pass: move.pass});
-
-          const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
-
-          let blackScore = this.countPoints(newBoard.currentState, "Black");
-          let whiteScore = this.countPoints(newBoard.currentState, "White");
-
-          let userScore = move.c === 1 ? whiteScore : blackScore;
-          let aiScore = move.c === 1 ? blackScore : whiteScore;
-
-          this.playerOne.socket.emit('gameOver', `Game over! Your score: ${userScore}  AI score: ${aiScore}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`);
-        }
-        else {
-          this.gameData.history.push({colour: move.c === 1 ? "Black" : "White", x: move.x, y: move.y, pass: move.pass});
-
-          const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
-
-          this.playerOne.socket.emit('showBoard', newBoard.currentState, move.pass);
-        }
-      });
+      this.doAIMove();
     }
   }
 
@@ -215,15 +199,42 @@ class Game {
     return false;
   }
 
+  doAIMove() {
+    this.getNextMoveFromAI(move => {
+
+      if (move.pass) {
+        this.gameData.history.push({colour: move.c === 1 ? "Black" : "White", x: 0, y: 0, pass: move.pass});
+
+        const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
+
+        let blackScore = this.countPoints(newBoard.currentState, "Black");
+        let whiteScore = this.countPoints(newBoard.currentState, "White");
+
+        let userScore = move.c === 1 ? whiteScore : blackScore;
+        let aiScore = move.c === 1 ? blackScore : whiteScore;
+
+        this.playerOne.socket.emit('gameOver', `Game over! Your score: ${userScore}  AI score: ${aiScore}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`);
+      }
+      else {
+        this.gameData.history.push({colour: move.c === 1 ? "Black" : "White", x: move.x, y: move.y, pass: move.pass});
+
+        const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
+
+        this.playerOne.socket.emit('showBoard', newBoard.currentState, move.pass);
+      }
+    });
+  }
+
   getNextMoveFromAI(callback) {
 
     var tmpBoard = new Board(this.gameData.history, this.gameData.boardSize);
     var aiBoard = tmpBoard.convertToInteger();
 
     var lastMove = this.gameData.history.length ? this.gameData.history[this.gameData.history.length - 1] : {
-      c: 0,
+      colour: 0,
       x: 0,
-      y: 0
+      y: 0,
+      pass: false
     };
 
     var body = {
@@ -237,10 +248,19 @@ class Game {
       }
     };
 
-    fetch('http://roberts.seng.uvic.ca:30000/ai/random', body)
-    .then(json => {
+    fetch('http://roberts.seng.uvic.ca:30000/ai/attackEnemy', body)
+    .then(move => {
 
-      callback(json);
+      // Check that move is valid. If it isn't, redo the request
+      if (tmpBoard[move.x][move.y] !== 0) {
+        this.getNextMoveFromAI(callback);
+      } else {
+        callback(move);
+      }
+    })
+    .catch(err => {
+      // TODO: What to do if AI is unavailable?
+      console.log(err);
     });
   }
     
