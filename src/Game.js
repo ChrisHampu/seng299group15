@@ -346,22 +346,25 @@ class Game {
   //returns the score only for the colour counted
   countPoints(inBoardState, inColour) {
   	
-    console.log("reached count points");
+    //console.log("reached count points");
     
   	var score = 0;
+	if (inColour == "White")
+		{
+		score = 5.5;
+		}
     
-    console.log(inColour, "is inColour");
+    //console.log(inColour, "is inColour");
  
 
   	var otherColour = this.getOppositeColour(inColour);
-    
-    console.log(otherColour, "is otherColour");
-  		
+	
+
 
     
-    console.log ("first for", inBoardState.length);
-    console.log ("second for", inBoardState/*[x]*/.length);
-    console.log("gamedata boardsize", this.gameData.boardSize);
+    //console.log ("first for", inBoardState.length);
+    //console.log ("second for", inBoardState/*[x]*/.length);
+    //console.log("gamedata boardsize", this.gameData.boardSize);
   	
   	for (var x = 0; x < inBoardState.length; x++) {
   		for (var y = 0; y < inBoardState/*[x]*/.length; y++) {
@@ -377,22 +380,26 @@ class Game {
          }        
         }
         
-        console.log("at point", x, ",", y);
+        //console.log("at point", x, ",", y, inColour);
 
     			//the slot is filled with the same colour, add 1 to score
   			if (inBoardState[x][y] == inColour) {
-          console.log("token present");
+          //console.log("token present");
   				score++;
           
-
-
     			//check if the territory belongs to the same colour
-  			} else if (this.checkTerritoryRecursive(otherBoardState, x, y, otherColour)) {
+  			} 
+			else if (0 != inBoardState[x][y])
+			{
+				//console.log ("checking on enemy token");
+			}
+			else if (this.checkTerritoryRecursive(otherBoardState, x, y, inColour)) {
+				//console.log ("counting empty spot ", x, y);
   				score++;
   			}
-         console.log("end loop 2");
+         //console.log("end loop 2");
   		}
-      console.log("end loop 1");
+      //console.log("end loop 1");
 	  }
     return score;
   }
@@ -402,46 +409,46 @@ class Game {
   //returns true if the colour is present, false otherwise
   //RETURNS TRUE IF COMPLETELY BOUNDED BY INCOLOUR AND NO OTHERS.
   checkTerritoryRecursive(inBoardState, x, y, inColour) {
-  
-  //console.log(inBoardState);
-  
-  console.log("at point", x, ",", y);
-  console.log("calculating ", inColour);
- 	
+
     if (x < 0 || x > this.gameData.boardSize - 1 || y < 0 || y > this.gameData.boardSize - 1) {
-      console.log("out of board", x, y);
+      //console.log("out of board", x, y);
       return true;
     } 
 
    	//already been checked
    	if (inBoardState[x][y] == "Checked") {
-      console.log("already checked");
+      //console.log("already checked");
    		return true;
     }
-  	
-  	//found the colour
-  	if (inBoardState[x][y] != inColour) {
-      //console.log("Score plus 1");
-      //one edge is correct colour.
-      console.log("found op edge");
-  		return false;
-  	}
-    
-    if (inBoardState[x][y] == inColour){
-      console.log("found own edge");
-      return true;
-    }
-    
-    inBoardState[x][y] = "Checked";
+	
 
-    console.log("-----right before-----");
-    if (inBoardState[x][y] == 0) {
+	
+	if (inBoardState[x][y] == 0) {
+		inBoardState[x][y] = "Checked";
+		//console.log("recursive here");
       if (this.checkTerritoryRecursive(inBoardState, x, y-1, inColour) && this.checkTerritoryRecursive(inBoardState, x-1, y, inColour) 
       && this.checkTerritoryRecursive(inBoardState, x+1, y, inColour) && this.checkTerritoryRecursive(inBoardState, x, y+1, inColour))
       {
         return true;
       }
     }
+	
+	var otherColour = this.getOppositeColour(inColour);
+
+  	//found the colour
+  	if (inBoardState[x][y] == otherColour) {
+      //console.log("Score plus 1");
+      //one edge is correct colour.
+      //console.log("found op edge", x, y, inBoardState[x][y], inColour, otherColour);
+  		return false;
+  	}
+    
+    if (inBoardState[x][y] == inColour){
+      //console.log("found own edge", x, y);
+      return true;
+    }
+    
+
     
     /*
     console.log ("passed 1");
@@ -472,8 +479,8 @@ class Game {
   	console.log ("passed 5"); */
     
   	//could not find the colour
-  	inBoardState[x][y] = "Checked";
-    console.log("Not found");
+    //console.log("Not found", x, y, inBoardState[x][y]);
+	inBoardState[x][y] = "Checked";
   	return false;
   }
   
