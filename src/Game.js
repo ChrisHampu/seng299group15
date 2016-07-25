@@ -85,16 +85,19 @@ class Game {
   playMove(user, x, y, pass) {
 
     if (this.getIsGameOver()) {
+      user.socket.emit('showError', "The game has ended");
       return;
     }
 
     // Make sure there is a second player
     if (!this.playerTwo) {
+      user.socket.emit('showError', "You need an opponent first");
       return;
     }
 
     // Basic checks; is player the right colour, etc
     if (this.getCanPlayMove(user, x, y, pass) === false) {
+      user.socket.emit('showError', "It is not your turn");
       return;
     }
 
