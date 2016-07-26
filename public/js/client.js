@@ -537,7 +537,7 @@ socket.on('showBoard', (board, colour, pass) => {
     if (pass === true) {
       renderTurnText(`${colour} passed`);
     } else {
-      renderTurnText(`${colour}s move`);
+      renderTurnText(`${colour==="White"?"Black":"White"}s move`);
     }
   } else {
     if (selfUser.colour !== colour) {

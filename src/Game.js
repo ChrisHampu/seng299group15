@@ -59,7 +59,7 @@ class Game {
     }
 
     // Take the last move played and return the opposite colour
-    return this.gameData.history[this.gameData.history.length - 1].colour === "White" ? "Black" : "White";
+    return this.getOppositeColour(this.gameData.history[this.gameData.history.length - 1].colour);
   }
 
   getCanPlayMove(user, x, y, pass) {
