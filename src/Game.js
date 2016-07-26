@@ -320,7 +320,7 @@ class Game {
     let board = new Board(this.gameData.history, this.gameData.boardSize);
   	// Use it to check that the spot isn't taken
   	if (board.currentState[x][y] != 0) {
-      console.log("spot is taken");
+      //console.log("spot is taken");
   		return { state: board.currentState, error: "Spot is occupied by another piece" };
   	}
 	
@@ -330,7 +330,7 @@ class Game {
 
   	// Check if move is surrounded
   	if (!board.checkLiberties(x,y,this.getNextMovingPlayerColour() === "White" ? "Black" : "White")) {
-      console.log("no liberties");
+      //console.log("no liberties");
   		moveValid = false;
       error = "Move would result in suicide";
   	}
@@ -349,14 +349,14 @@ class Game {
   	}
 
     if (this.gameData.history.length > 2 && duplicated === true) {
-      console.log("move duplicated");
+      //console.log("move duplicated");
       moveValid = false;
       error = "Move would result in Koh";
     }
 
     // If move is invalid, restore previous board history
     if (!moveValid) {
-      console.log("Returning old state");
+      //console.log("Returning old state");
 	  
       this.gameData.history.pop();
     }

@@ -108,7 +108,7 @@ class Board {
 
       this.currentState[x][y] = 0;
       captures++;
-      console.log("capture at", x, y);
+      //console.log("capture at", x, y);
 
       captures += this._doCapture(x+1, y, inColour);
       captures += this._doCapture(x, y+1, inColour);
@@ -136,14 +136,14 @@ class Board {
 
     testBoard[x][y] = 1;
 
-    console.log(x, y, inColour, "checking liberties");
+    //console.log(x, y, inColour, "checking liberties");
 
     let liberty = this._checkLiberties(testBoard, x-1, y, inColour) === false && 
       this._checkLiberties(testBoard, x, y-1, inColour) === false &&
       this._checkLiberties(testBoard, x+1, y, inColour) === false &&
       this._checkLiberties(testBoard, x, y+1, inColour) === false;
 
-    console.log(x, y, inColour, "finished liberties", !liberty);
+    //console.log(x, y, inColour, "finished liberties", !liberty);
 
     //if the spot is not empty return false, if there are no liberties, return false.
     return !liberty;	
@@ -154,24 +154,24 @@ class Board {
   _checkLiberties(testBoard, x, y, inColour) {
 
     if (x < 0 || y > this.size - 1 || y < 0 || x > this.size - 1) {
-      console.log(x, y, inColour, "outside board");
+      //console.log(x, y, inColour, "outside board");
       return false;
     }
 
     //check the current spot.
     if (this.currentState[x][y] === 0) {
       //console.log(this.currentState);
-      console.log(x, y, inColour, "board unoccupied");
+      //console.log(x, y, inColour, "board unoccupied");
       return true;
     }
 
     if (testBoard[x][y] === 1) {
-      console.log(x, y, inColour, "already tested");
+      //console.log(x, y, inColour, "already tested");
       return false;
     }
 
     if (this.currentState[x][y] === (inColour === "White" ? "Black" : "White")) {
-      console.log(x, y, inColour, "opposite colour");
+      //console.log(x, y, inColour, "opposite colour");
       return false;
     }
     
@@ -183,7 +183,7 @@ class Board {
       this._checkLiberties(testBoard, x+1, y, inColour) === true || 
       this._checkLiberties(testBoard, x, y+1, inColour) === true;
 
-      console.log(x, y, inColour, "has liberty", hasLiberty);
+      //console.log(x, y, inColour, "has liberty", hasLiberty);
 
     return hasLiberty;
   }	 
