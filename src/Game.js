@@ -191,8 +191,9 @@ class Game {
     this.playerOne.socket.emit('gameOver', message);
 
     if (this.gameData.gameType === "Network") {
-
-      this.playerTwo.socket.emit('showBoard', newState, newColour, pass);
+		console.log("Notify p2");
+	 
+      this.playerTwo.socket.emit('showBoard', newBoard.currentState, newColour, pass);
       this.playerTwo.socket.emit('gameOver', message);
     }
   }
