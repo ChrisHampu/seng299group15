@@ -113,7 +113,11 @@ class Server {
     var game = this.findGameById(gameID);
 
     if (!game) {
-      return;
+      return false;
+    }
+
+    if (game.gameOver) {
+      return false;
     }
 
     console.log("rejoining game");
@@ -135,6 +139,8 @@ class Server {
     user.socket.emit('showBoard', board.currentState, lastMove.colour, lastMove.pass);
 
     user.activeGame = gameID;
+
+    return true;
   }
 
   leaveGame(user, gameID) {
@@ -151,13 +157,17 @@ class Server {
 
         // notify p2
         game.playerTwo.socket.emit('showError', "Your opponent has left the game");
+        game.playerTwo.activeGame = null;
       } else {
         // notify p1
         game.playerOne.socket.emit('showError', "Your opponent has left the game");
+        game.playerOne.activeGame;
       }
-    } else {
-      game.gameOver = true;
+
+      game.doGameOver();
     }
+
+    game.gameOver = true;
 
     user.socket.emit('showError', "You've left the game");
   }

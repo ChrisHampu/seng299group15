@@ -136,37 +136,7 @@ class Game {
     // Check for consecutive passes
     if (this.getIsGameOver()) {
 
-      this.gameData.gameOver = true;
-      this.playerOne.activeGame = null
-      if (this.playerTwo) {
-        this.playerTwo.activeGame = null;
-      }
-
-      const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
-
-      let blackScore = this.countPoints(newBoard.currentState, "Black");
-      let whiteScore = this.countPoints(newBoard.currentState, "White");
-
-      let message = "";
-
-      if (this.gameData.gameType === "Hotseat") {
-
-        message = `Both passed  Black score: ${blackScore}  White score: ${whiteScore}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`;
-      } else {
-
-        let user1Score = this.playerOne.colour === "Black" ? blackScore : whiteScore;
-        let user2Score = this.playerTwo.colour === "Black" ? blackScore : whiteScore;
-
-        message = `Game over!  ${this.playerOne.fullName} (${this.playerOne.colour}) scored: ${user1Score}  ${this.playerTwo.fullName} (${this.playerTwo.colour}) scored: ${user2Score}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`;
-      }
-
-      this.playerOne.socket.emit('gameOver', message);
-
-      if (this.gameData.gameType === "Network") {
-
-        this.playerTwo.socket.emit('showBoard', newState, newColour, pass);
-        this.playerTwo.socket.emit('gameOver', message);
-      }
+      this.doGameOver();
     }
 
     // If this is a network game, send move the player 2
@@ -178,6 +148,46 @@ class Game {
 
       // If player made a valid move, now the AI needs to perform a move
       this.doAIMove();
+    }
+  }
+
+  doGameOver() {
+
+    if (this.gameData.gameOver === true) {
+      return;
+    }
+
+    this.gameData.gameOver = true;
+    this.playerOne.activeGame = null
+
+    if (this.playerTwo) {
+      this.playerTwo.activeGame = null;
+    }
+
+    const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
+
+    let blackScore = this.countPoints(newBoard.currentState, "Black");
+    let whiteScore = this.countPoints(newBoard.currentState, "White");
+
+    let message = "";
+
+    if (this.gameData.gameType === "Hotseat") {
+
+      message = `Both passed  Black score: ${blackScore}  White score: ${whiteScore}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`;
+    } else {
+
+      let user1Score = this.playerOne.colour === "Black" ? blackScore : whiteScore;
+      let user2Score = this.playerTwo.colour === "Black" ? blackScore : whiteScore;
+
+      message = `Game over!  ${this.playerOne.fullName} (${this.playerOne.colour}) scored: ${user1Score}  ${this.playerTwo.fullName} (${this.playerTwo.colour}) scored: ${user2Score}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`;
+    }
+
+    this.playerOne.socket.emit('gameOver', message);
+
+    if (this.gameData.gameType === "Network") {
+
+      this.playerTwo.socket.emit('showBoard', newState, newColour, pass);
+      this.playerTwo.socket.emit('gameOver', message);
     }
   }
 
