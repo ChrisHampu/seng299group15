@@ -183,9 +183,9 @@ class Game {
     } else {
 
       let user1Score = this.playerOne.colour === "Black" ? blackScore : whiteScore;
-      let user2Score = this.playerTwo.colour === "Black" ? blackScore : whiteScore;
+      let user2Score = this.getOppositeColour(this.playerOne.colour) === "Black" ? blackScore : whiteScore;
 
-      message = `Game over!  ${this.playerOne.fullName} (${this.playerOne.colour}) scored: ${user1Score}  ${this.playerTwo.fullName} (${this.playerTwo.colour}) scored: ${user2Score}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`;
+      message = `Game over!  ${this.playerOne.fullName} (${this.playerOne.colour}) scored: ${user1Score}  ${this.playerTwo.fullName} (${this.getOppositeColour(this.playerOne.colour)}) scored: ${user2Score}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`;
     }
 
     this.playerOne.socket.emit('gameOver', message);
