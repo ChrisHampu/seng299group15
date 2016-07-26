@@ -156,8 +156,10 @@ class Server {
       if (game.gameData.playerOne.id === user.id) {
 
         // notify p2
-        game.playerTwo.socket.emit('showError', "Your opponent has left the game");
-        game.playerTwo.activeGame = null;
+		if (game.playerTwo && game.playerTwo.socket) {
+		    game.playerTwo.socket.emit('showError', "Your opponent has left the game");
+			game.playerTwo.activeGame = null;
+		}
       } else {
         // notify p1
         game.playerOne.socket.emit('showError', "Your opponent has left the game");
