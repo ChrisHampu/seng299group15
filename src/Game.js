@@ -106,6 +106,7 @@ class Game {
 	
     // The state to send to the client
     let newState = null;
+	let errorState = null;
 
     if (!pass) {
 	
@@ -116,7 +117,8 @@ class Game {
       newState = newMove.state;
 
       if (newMove.error) {
-        console.log(newMove.error);
+		errorState = newMove.error;
+        //console.log(newMove.error);
         user.socket.emit('showError', newMove.error);
       }
     } else {
@@ -131,7 +133,7 @@ class Game {
     //console.log("Points for", newColour, this.countPoints(newState, newColour));
 
     // Send client new board state, colour of user moving, and the pass state
-    this.playerOne.socket.emit('showBoard', newState, newColour, pass);
+    
 
     // Check for consecutive passes
     if (this.getIsGameOver()) {
@@ -139,16 +141,20 @@ class Game {
       this.doGameOver();
     }
 
-    // If this is a network game, send move the player 2
-    if (this.gameData.gameType === "Network") {
-      this.playerTwo.socket.emit('showBoard', newState, newColour, pass);
-	 
-    // If this is an AI game, get a new move from the AI and send it to player
-    } else if (this.playerTwo.id === "AI") {
+	if (!errorState) {
+		this.playerOne.socket.emit('showBoard', newState, newColour, pass);
+		
+		// If this is a network game, send move the player 2
+		if (this.gameData.gameType === "Network") {
+		  this.playerTwo.socket.emit('showBoard', newState, newColour, pass);
+		 
+		// If this is an AI game, get a new move from the AI and send it to player
+		} else if (this.playerTwo.id === "AI") {
 
-      // If player made a valid move, now the AI needs to perform a move
-      this.doAIMove();
-    }
+		  // If player made a valid move, now the AI needs to perform a move
+		  this.doAIMove();
+		}
+	}
   }
 
   doGameOver() {
@@ -330,7 +336,7 @@ class Game {
   	}
   	
     // Construct board state back 3 moves and use it to check for duplicate moves
-  	let oldBoard = new Board(this.gameData.history.slice(0, this.gameData.history.length - 3), this.gameData.boardSize);
+  	let oldBoard = new Board(this.gameData.history.slice(0, this.gameData.history.length - 2), this.gameData.boardSize);
   	    
   	//if oldBoard == newBoard, return false
   	//checking that move doesnt recreate past board state
