@@ -146,6 +146,8 @@ io.on('connection', socket => {
         Server.reconnectGame(user, activeGamePlayers[i].activeGame);
 
         activeGamePlayers[i] = user;
+
+        break;
       }
     }
 
@@ -179,6 +181,21 @@ io.on('connection', socket => {
   		Server.replayMove(user, index);
   	});
 
+    socket.on('leaveGame', () => {
+
+    for (var i = 0; i < activeGamePlayers.length; i++) {
+      if (activeGamePlayers[i].id === user.id) {
+
+        Server.leaveGame(user, activeGamePlayers[i].activeGame);
+
+        user.activeGame = null;
+        user.colour = null;
+
+        //delete activeGamePlayers[i];
+      }
+    }    
+    });
+
   } else {
 		console.log("Unauthenticated user connected");
 	}
@@ -186,12 +203,14 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     console.log('User disconnected');
 
-    console.log("disconnected", user);
+    //console.log("disconnected", user);
 
     let idx = activeGamePlayers.findIndex(_user => _user === user);
 
     if (idx !== -1) {
       //console.log(activeGamePlayers.splice(idx, 1));
+
+      Server.onDisconnected(user, user.activeGame);
     }
   });
 });

@@ -136,6 +136,52 @@ class Server {
 
     user.activeGame = gameID;
   }
+
+  leaveGame(user, gameID) {
+
+    var game = this.findGameById(gameID);
+
+    if (!game) {
+      return;
+    }
+
+    if (game.gameData.gameType === "Network") {
+
+      if (game.gameData.playerOne.id === user.id) {
+
+        // notify p2
+        game.playerTwo.socket.emit('showError', "Your opponent has left the game");
+      } else {
+        // notify p1
+        game.playerOne.socket.emit('showError', "Your opponent has left the game");
+      }
+    } else {
+      game.gameOver = true;
+    }
+
+    user.socket.emit('showError', "You've left the game");
+  }
+
+  onDisconnected(user, gameID) {
+
+    var game = this.findGameById(gameID);
+
+    if (!game) {
+      return;
+    }
+
+    if (game.gameData.gameType === "Network") {
+
+      if (game.gameData.playerOne.id === user.id) {
+
+        // notify p2
+        game.playerTwo.socket.emit('showError', "Your opponent has disconnected");
+      } else {
+        // notify p1
+        game.playerOne.socket.emit('showError', "Your opponent has disconnected");
+      }
+    }  
+  }
 }
 
 module.exports = Server;

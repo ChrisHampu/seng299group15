@@ -299,6 +299,8 @@ function renderPlayGame(game) {
     // Emit appropriate events to server
 
     renderCreateGame();
+
+    socket.emit('leaveGame');
   });
 
   renderGameBoard(game);
