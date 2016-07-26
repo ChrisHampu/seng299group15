@@ -187,7 +187,9 @@ class Server {
       if (game.gameData.playerOne.id === user.id) {
 
         // notify p2
-        game.playerTwo.socket.emit('showError', "Your opponent has disconnected");
+		if (game.playerTwo && game.playerTwo.socket) {
+			game.playerTwo.socket.emit('showError', "Your opponent has disconnected");
+		}
       } else {
         // notify p1
         game.playerOne.socket.emit('showError', "Your opponent has disconnected");
