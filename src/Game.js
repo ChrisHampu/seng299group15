@@ -269,7 +269,7 @@ class Game {
     .then(move => {
 
       // Check that move is valid. If it isn't, redo the request
-      if (tmpBoard[move.x][move.y] !== 0) {
+      if (tmpBoard.currentState[move.x][move.y] !== 0) {
         this.getNextMoveFromAI(callback);
       } else {
         callback(move);
