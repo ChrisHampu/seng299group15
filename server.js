@@ -119,6 +119,8 @@ app.get('/logout', (req, res, err) => {
 //     CONNECTIONS
 //-----------------------------------------------------------------------------
 
+const activeGamePlayers = [];
+
 io.use(ios(session));
 
 io.on('connection', socket => {
@@ -138,16 +140,28 @@ io.on('connection', socket => {
       console.log('Socket error: ', err);
     });
 
-  	// This function runs when the client sends a 'createGame' message
+    for (var i = 0; i < activeGamePlayers.length; i++) {
+      if (activeGamePlayers[i].id === user.id) {
+
+        Server.reconnectGame(user, activeGamePlayers[i].activeGame);
+
+        activeGamePlayers[i] = user;
+      }
+    }
+
+  	// This function runs when th00 client sends a 'createGame' message
   	socket.on('createGame', (gameType, boardSize, colour) => {
 
-  		Server.createGame(user, gameType, boardSize, colour);
+  		if (Server.createGame(user, gameType, boardSize, colour)) {
+        activeGamePlayers.push(user);
+      }
     });
 
   	socket.on('joinGame', id => {
 
-      console.log(id);
-      Server.joinGame(user, id);
+      if (Server.joinGame(user, id)) {
+        activeGamePlayers.push(user);
+      }
     });
   	
   	socket.on('playMove', (x, y, pass) => {
@@ -171,6 +185,14 @@ io.on('connection', socket => {
 
   socket.on('disconnect', () => {
     console.log('User disconnected');
+
+    console.log("disconnected", user);
+
+    let idx = activeGamePlayers.findIndex(_user => _user === user);
+
+    if (idx !== -1) {
+      //console.log(activeGamePlayers.splice(idx, 1));
+    }
   });
 });
 

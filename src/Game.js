@@ -137,6 +137,10 @@ class Game {
     if (this.getIsGameOver()) {
 
       this.gameData.gameOver = true;
+      this.playerOne.activeGame = null
+      if (this.playerTwo) {
+        this.playerTwo.activeGame = null;
+      }
 
       const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
 

@@ -50,7 +50,7 @@ const makeRectangle = (x, y, w, h, c) => {
 
   rect.style.stroke      = "#000000";
   rect.style.strokeWidth = 2;
-  rect.style.fill = "#dcb35c";
+  rect.style.fill = "rgba(0,0,0,0)";
 
   return rect; 
 }
@@ -579,7 +579,13 @@ socket.on('joinGame', (game, self, opponent) => {
   let selfColour = self.colour;
   let opponentColour = selfColour === "White" ? "Black" : "White";
 
-  renderTitleText(`Playing as ${selfColour} vs ${opponent.fullName}`);
+  if (game.gameType === "Hotseat") {
+    renderTitleText("Hotseat Go");
+  } else if(game.gameType === "AI") {
+    renderTitleText("Playing vs AI");
+  } else {
+    renderTitleText(`Playing as ${self.colour} vs ${opponent.fullName}`);
+  }
 
   selfUser = self;
   opponentUser = opponent;

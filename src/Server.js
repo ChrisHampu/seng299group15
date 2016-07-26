@@ -19,6 +19,8 @@ class Server {
 
     // Send the player a 'gameCreated' message with the game data
     player.socket.emit('gameCreated', newGame.gameData);
+
+    return true;
   }
 
   // user becomes player 2
@@ -38,7 +40,11 @@ class Server {
 
       user.activeGame = gameID;
       game.addPlayer(user);
+
+      return true;
     }
+
+    return false;
   }
 
   findGameById(gameID) {
@@ -100,6 +106,35 @@ class Server {
     }
 
     user.socket.emit('showReplayState', board.currentState, _index, game.gameData.gameOver && maxIndex === _index, blackPoints, whitePoints);
+  }
+
+  reconnectGame(user, gameID) {
+
+    var game = this.findGameById(gameID);
+
+    if (!game) {
+      return;
+    }
+
+    console.log("rejoining game");
+
+    let board = new Board(game.gameData.history, game.gameData.boardSize);
+    let lastMove = game.gameData.history.length ? game.gameData.history[game.gameData.history.length - 1] : { colour: "Black", pass: false };
+
+    // This logic isn't foolproof
+    if (game.gameData.playerOne.id === user.id) {
+      user.socket.emit('joinGame', game.gameData, game.gameData.playerOne, game.gameData.playerTwo);
+      user.colour = game.gameData.playerOne.colour;
+      game.playerOne = user;
+    } else {
+      user.socket.emit('joinGame', game.gameData, game.gameData.playerTwo, game.gameData.playerOne);
+      user.colour = game.gameData.playerTwo.colour;
+      game.playerTwo = user;
+    }
+    
+    user.socket.emit('showBoard', board.currentState, lastMove.colour, lastMove.pass);
+
+    user.activeGame = gameID;
   }
 }
 
