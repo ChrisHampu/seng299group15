@@ -231,13 +231,20 @@ class Game {
 
         const newBoard = new Board(this.gameData.history, this.gameData.boardSize);
 
-        let blackScore = this.countPoints(newBoard.currentState, "Black");
-        let whiteScore = this.countPoints(newBoard.currentState, "White");
+        this.playerOne.socket.emit('showBoard', newBoard.currentState, move.pass);
 
-        let userScore = move.c === 1 ? whiteScore : blackScore;
-        let aiScore = move.c === 1 ? blackScore : whiteScore;
+        if (getIsGameOver() === true) {
 
-        this.playerOne.socket.emit('gameOver', `Game over! Your score: ${userScore}  AI score: ${aiScore}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`);
+          let blackScore = this.countPoints(newBoard.currentState, "Black");
+          let whiteScore = this.countPoints(newBoard.currentState, "White");
+
+          let userScore = move.c === 1 ? whiteScore : blackScore;
+          let aiScore = move.c === 1 ? blackScore : whiteScore;
+
+          this.playerOne.socket.emit('gameOver', `Game over! Your score: ${userScore}  AI score: ${aiScore}  Replay ID: ${this.gameData.gameID.slice(0, 8)}`);
+
+          this.gameData.gameOver = true;
+        }
       }
       else {
         this.gameData.history.push({colour: move.c === 1 ? "Black" : "White", x: move.x, y: move.y, pass: move.pass});
@@ -284,6 +291,9 @@ class Game {
     })
     .catch(err => {
       // TODO: What to do if AI is unavailable?
+      if (this.playerOne && this.playerOne.socket) {
+        this.playerOne.socket.emit('showError', 'AI service is currently unavailable');
+      }
       console.log(err);
     });
   }
