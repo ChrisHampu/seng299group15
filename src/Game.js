@@ -191,7 +191,7 @@ class Game {
     this.playerOne.socket.emit('gameOver', message);
 
     if (this.gameData.gameType === "Network") {
-		console.log("Notify p2");
+		//console.log("Notify p2");
 	 
       //this.playerTwo.socket.emit('showBoard', newBoard.currentState, newColour, pass);
       this.playerTwo.socket.emit('gameOver', message);
@@ -201,6 +201,7 @@ class Game {
   getIsGameOver() {
 
     if (this.gameData.gameOver === true) {
+	  //console.log("Game is over is true");
       return true;
     }
 
@@ -216,6 +217,8 @@ class Game {
           allPassed = false;
         }
       }
+	  
+	  //console.log("allpassed", allPassed);
 
       return allPassed;
     }
@@ -233,8 +236,10 @@ class Game {
 
         this.playerOne.socket.emit('showBoard', newBoard.currentState, move.pass);
 
-        if (getIsGameOver() === true) {
+        if (this.getIsGameOver() === true) {
 
+		  console.log("Game is actually over?");
+		
           let blackScore = this.countPoints(newBoard.currentState, "Black");
           let whiteScore = this.countPoints(newBoard.currentState, "White");
 
@@ -282,6 +287,17 @@ class Game {
     fetch('http://roberts.seng.uvic.ca:30000/ai/attackEnemy', body)
     .then(move => {
 
+	  if (!move) {
+		throw new Error("AI returned undefined");
+	  }
+	  
+	  // Bypass move validity checking if move is a pass
+	  if (move.pass) {
+		this.playerOne.socket.emit('showError', 'AI passed');
+		callback(move);
+		return;
+	  }
+	
       // Check that move is valid. If it isn't, redo the request
       if (tmpBoard.currentState[move.x][move.y] !== 0) {
         this.getNextMoveFromAI(callback);
