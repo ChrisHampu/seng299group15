@@ -4,7 +4,7 @@ This readme describes how to get started with our project and run the applicatio
 This project requires [Node.js](https://nodejs.org/) v5+ to run.
 MongoDB 3.2 can optionally be used for persistence, but is not mandatory.
 
-First download the project then install the dependencies and devDependencies and start the server.
+First download the project then install the dependencies and devDependencies.
 
 ```sh
 $ npm install -d
